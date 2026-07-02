@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; font-family: var(--font-serif); }
+button, a { cursor: pointer; }
+
+.grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.75'/%3E%3C/svg%3E");
+}
+
+.viewer::before {
+  content: "水滸";
+  position: absolute;
+  left: 8%;
+  top: 48%;
+  transform: translateY(-50%);
+  color: rgb(230 223 203 / .018);
+  font-size: clamp(170px, 24vw, 390px);
+  font-weight: 900;
+  line-height: .8;
+  letter-spacing: -.25em;
+  writing-mode: vertical-rl;
+}
+
+.bio::first-letter { float: left; margin: 7px 6px 0 0; color: #d1b56f; font-size: 34px; line-height: 1; }
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; }
+}
