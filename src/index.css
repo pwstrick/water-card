@@ -15,6 +15,9 @@ button, a { cursor: pointer; }
 html.mobile-device .mobile-character-switch { display: block !important; }
 html.mobile-device .desktop-character-switch { display: none !important; }
 
+/* Tailwind 4 uses the individual `translate` property, unsupported by older UC kernels. */
+.legacy-center-x { transform: translateX(-50%); }
+
 .grain {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.75'/%3E%3C/svg%3E");
 }

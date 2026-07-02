@@ -470,7 +470,7 @@ export default function CardViewer({ card }) {
           </div>
         )}
         {loadState === 'error' && <span className="absolute inset-0 grid place-items-center text-xs text-[#bc6757]">卡片图片加载失败</span>}
-        <div className="card-shadow pointer-events-none absolute bottom-7 left-1/2 h-12 w-60 -translate-x-1/2 rounded-full bg-black/60 blur-2xl" />
+        <div className="card-shadow legacy-center-x pointer-events-none absolute bottom-7 left-1/2 h-12 w-60 rounded-full bg-black/60 blur-2xl" />
       </div>
 
       <div className={`absolute w-[90px] text-right font-mono text-[9px] text-[#777f76] max-sm:hidden mobile-device:hidden ${isFocusMode ? 'bottom-8 right-8' : 'bottom-12 right-0'}`} aria-hidden="true">
@@ -481,7 +481,7 @@ export default function CardViewer({ card }) {
         <small className="tracking-[.15em]">360° THREE.JS</small>
       </div>
 
-      <div className={`absolute left-1/2 z-20 flex w-max max-w-[calc(100vw-16px)] -translate-x-1/2 items-center justify-center gap-5 whitespace-nowrap max-sm:gap-2 mobile-device:gap-2 ${isFocusMode ? 'bottom-6' : 'bottom-[-52px] max-sm:bottom-[-45px] mobile-device:bottom-[-45px]'}`}>
+      <div className={`legacy-center-x absolute left-1/2 z-20 flex w-max max-w-[calc(100vw-16px)] items-center justify-center gap-5 whitespace-nowrap max-sm:gap-2 mobile-device:gap-2 ${isFocusMode ? 'bottom-6' : 'bottom-[-52px] max-sm:bottom-[-45px] mobile-device:bottom-[-45px]'}`}>
         <SideButton label="正面" mark="正" active={!isBack} onClick={() => goTo(0)} />
         <div className="flex shrink-0 items-center gap-3 text-[#a8aa9f] max-sm:hidden mobile-device:hidden">
           <i className="font-sans text-[22px] not-italic text-[#c7a762]">↔</i>
