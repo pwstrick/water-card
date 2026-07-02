@@ -481,18 +481,18 @@ export default function CardViewer({ card }) {
         <small className="tracking-[.15em]">360° THREE.JS</small>
       </div>
 
-      <div className={`absolute left-1/2 z-20 flex -translate-x-1/2 items-center gap-5 whitespace-nowrap max-sm:gap-2 mobile-device:gap-2 ${isFocusMode ? 'bottom-6' : 'bottom-[-52px] max-sm:bottom-[-45px] mobile-device:bottom-[-45px]'}`}>
+      <div className={`absolute left-1/2 z-20 flex w-max max-w-[calc(100vw-16px)] -translate-x-1/2 items-center justify-center gap-5 whitespace-nowrap max-sm:gap-2 mobile-device:gap-2 ${isFocusMode ? 'bottom-6' : 'bottom-[-52px] max-sm:bottom-[-45px] mobile-device:bottom-[-45px]'}`}>
         <SideButton label="正面" mark="正" active={!isBack} onClick={() => goTo(0)} />
-        <div className="flex items-center gap-3 text-[#a8aa9f]">
+        <div className="flex shrink-0 items-center gap-3 text-[#a8aa9f] max-sm:hidden mobile-device:hidden">
           <i className="font-sans text-[22px] not-italic text-[#c7a762]">↔</i>
-          <span className="text-[11px] leading-tight tracking-[.12em] max-sm:hidden mobile-device:hidden">{isFocusMode ? `拖动${interactionMode === 'pan' ? '移动' : '翻转'}` : '拖动翻转'}<br /><small className="font-mono text-[8px] tracking-[.08em] text-[#596059]">{isFocusMode ? '顶部按钮切换模式' : '滚轮 / 双指放大'}</small></span>
+          <span className="text-[11px] leading-tight tracking-[.12em]">{isFocusMode ? `拖动${interactionMode === 'pan' ? '移动' : '翻转'}` : '拖动翻转'}<br /><small className="font-mono text-[8px] tracking-[.08em] text-[#596059]">{isFocusMode ? '顶部按钮切换模式' : '滚轮 / 双指放大'}</small></span>
         </div>
         <SideButton label="背面" mark="背" active={isBack} onClick={() => goTo(180)} />
-        <span className="h-6 w-px bg-[#414740]" aria-hidden="true" />
+        <span className="h-6 w-px shrink-0 bg-[#414740] max-sm:hidden mobile-device:hidden" aria-hidden="true" />
         <ZoomButton label="缩小卡片" mark="−" onClick={() => changeZoom(-1)} disabled={zoom <= BASE_DISTANCE / MAX_DISTANCE + 0.02} />
-        <span className="min-w-9 text-center font-mono text-[9px] text-[#8d938b]" aria-live="polite">{Math.round(zoom * 100)}%</span>
+        <span className="min-w-9 shrink-0 text-center font-mono text-[9px] text-[#8d938b]" aria-live="polite">{Math.round(zoom * 100)}%</span>
         <ZoomButton label="放大卡片" mark="＋" onClick={() => changeZoom(1)} disabled={zoom >= BASE_DISTANCE / MIN_DISTANCE - 0.05} />
-        <span className="h-6 w-px bg-[#414740]" aria-hidden="true" />
+        <span className="h-6 w-px shrink-0 bg-[#414740] max-sm:hidden mobile-device:hidden" aria-hidden="true" />
         <ActionButton label="下载当前样子的卡片" mark="↓" onClick={downloadView} />
       </div>
     </div>
@@ -501,7 +501,7 @@ export default function CardViewer({ card }) {
 
 function ZoomButton({ label, mark, onClick, disabled }) {
   return (
-    <button type="button" className="grid h-8 w-8 place-items-center rounded-full border border-[#555c55] bg-transparent font-sans text-lg text-[#c7a762] transition-colors hover:border-[#c7a762] hover:bg-[#c7a76214] disabled:cursor-not-allowed disabled:opacity-30" aria-label={label} title={label} onClick={onClick} disabled={disabled}>
+    <button type="button" className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#555c55] bg-transparent font-sans text-lg text-[#c7a762] transition-colors hover:border-[#c7a762] hover:bg-[#c7a76214] disabled:cursor-not-allowed disabled:opacity-30" aria-label={label} title={label} onClick={onClick} disabled={disabled}>
       {mark}
     </button>
   )
@@ -509,7 +509,7 @@ function ZoomButton({ label, mark, onClick, disabled }) {
 
 function ActionButton({ label, mark, onClick }) {
   return (
-    <button type="button" className="flex h-8 items-center gap-2 rounded-full border border-[#555c55] bg-transparent px-3 font-serif text-[10px] tracking-[.12em] text-[#c7a762] transition-colors hover:border-[#c7a762] hover:bg-[#c7a76214]" aria-label={label} title={label} onClick={onClick}>
+    <button type="button" className="flex h-8 shrink-0 items-center gap-2 rounded-full border border-[#555c55] bg-transparent px-3 font-serif text-[10px] tracking-[.12em] text-[#c7a762] transition-colors hover:border-[#c7a762] hover:bg-[#c7a76214]" aria-label={label} title={label} onClick={onClick}>
       <span className="font-sans text-base leading-none">{mark}</span>
       <span className="max-sm:hidden mobile-device:hidden">下载</span>
     </button>
@@ -531,7 +531,7 @@ function ModeButton({ label, active, onClick }) {
 
 function SideButton({ label, mark, active, onClick }) {
   return (
-    <button type="button" onClick={onClick} className={`flex items-center gap-2 whitespace-nowrap border-0 bg-transparent font-serif text-xs tracking-[.2em] ${active ? 'text-[#e4dcc5]' : 'text-[#6e756d]'}`}>
+    <button type="button" onClick={onClick} className={`flex shrink-0 items-center gap-2 whitespace-nowrap border-0 bg-transparent font-serif text-xs tracking-[.2em] max-sm:gap-1 max-sm:tracking-[.1em] mobile-device:gap-1 mobile-device:tracking-[.1em] ${active ? 'text-[#e4dcc5]' : 'text-[#6e756d]'}`}>
       <span className={`grid h-7 w-7 place-items-center rounded-full border text-[11px] ${active ? 'border-[#c7a762] text-[#c7a762]' : 'border-[#414740]'}`}>{mark}</span>
       {label}
     </button>
