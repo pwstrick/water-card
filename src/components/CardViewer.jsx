@@ -7,6 +7,17 @@ const MAX_DISTANCE = 8
 const ZOOM_FACTOR = 1.16
 const ROTATE_SPEED = 0.008
 
+const TEXTURE_LAYOUTS = {
+  standard: {
+    front: { repeat: [0.46, 0.942], offset: [0.026, 0.029] },
+    back: { repeat: [0.461, 0.942], offset: [0.515, 0.029] },
+  },
+  flash_prize: {
+    front: { repeat: [0.5, 1], offset: [0, 0] },
+    back: { repeat: [0.5, 1], offset: [0.5, 0] },
+  },
+}
+
 const normalize = (value) => ((value % 360) + 360) % 360
 
 function createRoundedRect(width, height, radius) {
@@ -125,16 +136,17 @@ export default function CardViewer({ card }) {
     normalizeFaceUvs(faceGeometry, width, height)
     const textureLoader = new THREE.TextureLoader()
 
-    const makeTextures = async (url) => {
+    const makeTextures = async (url, layoutName) => {
       const source = await textureLoader.loadAsync(url)
       const frontTexture = source.clone()
       const backTexture = source.clone()
       source.dispose()
 
-      frontTexture.repeat.set(0.46, 0.942)
-      frontTexture.offset.set(0.026, 0.029)
-      backTexture.repeat.set(0.461, 0.942)
-      backTexture.offset.set(0.515, 0.029)
+      const layout = TEXTURE_LAYOUTS[layoutName] ?? TEXTURE_LAYOUTS.standard
+      frontTexture.repeat.set(...layout.front.repeat)
+      frontTexture.offset.set(...layout.front.offset)
+      backTexture.repeat.set(...layout.back.repeat)
+      backTexture.offset.set(...layout.back.offset)
 
       const prepared = [frontTexture, backTexture]
       prepared.forEach((texture) => {
@@ -146,7 +158,7 @@ export default function CardViewer({ card }) {
     }
 
     const textures = []
-    makeTextures(card.images.source)
+    makeTextures(card.images.source, card.images.layout)
       .then(([frontTexture, backTexture]) => {
         if (disposed) {
           frontTexture.dispose()
@@ -278,7 +290,7 @@ export default function CardViewer({ card }) {
           const url = URL.createObjectURL(blob)
           const link = document.createElement('a')
           link.href = url
-          link.download = `水浒卡-${card.name}-${String(lastAngle).padStart(3, '0')}度.png`
+          link.download = `水浒卡-${card.name}${card.edition ? `-${card.edition}` : ''}-${String(lastAngle).padStart(3, '0')}度.png`
           link.click()
           window.setTimeout(() => URL.revokeObjectURL(url), 1000)
         }, 'image/png')
@@ -397,7 +409,7 @@ export default function CardViewer({ card }) {
       renderer.dispose()
       renderer.domElement.remove()
     }
-  }, [card.images.source])
+  }, [card.edition, card.images.layout, card.images.source, card.name])
 
   useEffect(() => {
     const onKeyDown = (event) => {

@@ -24,12 +24,12 @@ export default function CardDetails({ card, cards, collection, onCardChange }) {
       </div>
 
       <div className="mb-10 font-mono text-[46px] tracking-[-.06em] text-[#dad3bf] max-lg:mb-8 max-sm:text-[34px]">
-        {card.id}
+        {card.displayId ?? card.id}
         <span className={`ml-3 inline-flex -translate-y-2 rounded-full border px-2.5 py-1 font-serif text-[9px] tracking-[.18em] ${
           collection.id === 'flash_prize'
             ? 'border-[#c7a76280] bg-[#c7a76214] text-[#d5b66f]'
             : 'border-[#73797066] text-[#858b83]'
-        }`}>{collection.label}</span>
+        }`}>{collection.label}{card.edition ? ` · ${card.edition}` : ''}</span>
       </div>
 
       <div className="border-t border-[#30352f]">

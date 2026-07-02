@@ -63,11 +63,12 @@ export default function CharacterSwitch({ card, cards, onCardChange }) {
             aria-expanded={isOpen}
           >
             <span className="min-w-0 truncate text-xs tracking-[.08em] text-[#d5cfbd]">
-              <span className="font-mono text-[#d3b96f]">{card.id}</span>
+              <span className="font-mono text-[#d3b96f]">{card.displayId ?? card.id}</span>
               <span className="mx-2 text-[#625b49]">·</span>
               <span className="text-[#d3b96f]">{card.nickname}</span>
               <span className="mx-2 text-[#625b49]">·</span>
               <span className="text-[#d3b96f]">{card.name}</span>
+              {card.edition && <span className="ml-2 text-[9px] text-[#bc6757]">{card.edition}</span>}
             </span>
             <span className={`shrink-0 text-[10px] text-[#9d8557] transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
           </button>
@@ -97,9 +98,10 @@ export default function CharacterSwitch({ card, cards, onCardChange }) {
                         : 'hover:bg-[#ffffff0a]'
                     }`}
                   >
-                    <span className="w-10 shrink-0 font-mono text-[10px] text-[#73776d]">{item.id}</span>
+                    <span className="w-10 shrink-0 font-mono text-[10px] text-[#73776d]">{item.displayId ?? item.id}</span>
                     <span className={`min-w-0 flex-1 truncate ${selected ? 'text-[#c9ad65]' : 'text-[#b9b8ac]'}`}>{item.nickname}</span>
                     <span className={`ml-3 shrink-0 ${selected ? 'text-[#c9ad65]' : 'text-[#b9b8ac]'}`}>{item.name}</span>
+                    {item.edition && <span className="ml-2 shrink-0 text-[9px] text-[#bc6757]">{item.edition}</span>}
                     {selected && <span className="ml-2 text-[#c9ad65]">✓</span>}
                   </button>
                 )

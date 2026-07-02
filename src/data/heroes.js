@@ -1,5 +1,6 @@
 const hero = (number, name, romanizedName, nickname, star, id = number) => ({
   id: String(id).padStart(3, '0'),
+  displayId: String(number).padStart(3, '0'),
   number,
   name,
   romanizedName,
@@ -123,5 +124,6 @@ export const createCards = (assetDirectory) =>
     ...item,
     images: {
       source: `${import.meta.env.BASE_URL}assets/${assetDirectory}/${index + 1}.jpg`,
+      layout: assetDirectory,
     },
   }))
