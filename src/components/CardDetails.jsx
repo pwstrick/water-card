@@ -1,5 +1,13 @@
 import CharacterSwitch from './CharacterSwitch'
 
+const operationTips = [
+  ['拖动', '正常状态下拖动可 360° 翻转卡片；放大后默认拖动查看局部，也可通过顶部的“移动 / 翻转”切换拖动模式。'],
+  ['缩放', '使用鼠标滚轮、底部“− / ＋”按钮或双指捏合缩放；双指移动还可查看放大后的局部。'],
+  ['正反面', '点击底部“正面 / 背面”快速切换，双击卡片也可翻面。'],
+  ['键盘', '← / → 每次旋转 30°，空格键翻面，+ / − 缩放，Esc 退出放大。'],
+  ['下载', '点击底部“下载”保存当前角度和缩放状态下的卡片图片。'],
+]
+
 export default function CardDetails({ card, cards, collection, onCardChange }) {
   const stats = [
     ['绰号', card.nickname],
@@ -41,7 +49,14 @@ export default function CardDetails({ card, cards, collection, onCardChange }) {
 
       <div className="mt-10 border-t border-[#30352f] pt-5">
         <span className="mb-3 block text-[9px] tracking-[.3em] text-[#686f68]">操作提示</span>
-        <p className="m-0 text-xs leading-7 text-[#8e938b]">正常状态拖动旋转；放大后拖动查看局部，双指捏合缩放。</p>
+        <ul className="m-0 space-y-2.5 p-0 text-xs leading-6 text-[#8e938b]">
+          {operationTips.map(([label, description]) => (
+            <li key={label} className="flex list-none gap-2">
+              <b className="shrink-0 font-medium text-[#c7a762]">{label}</b>
+              <span>{description}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </aside>
   )
