@@ -2,6 +2,8 @@
 
 一个用于展示小浣熊水浒卡的响应式网站，提供卡片正反面鉴赏、Three.js 360° 预览以及不同版本卡片对比等功能。
 
+由自己设计页面和功能，由 AI 生成源码的项目，已完成组件化抽象、性能优化、单元测试、部署配置等。
+
 在线体验：[https://pwstrick.github.io/water-card/](https://pwstrick.github.io/water-card/)
 
 <img src="public/qrcode.png" alt="水浒卡鉴赏室二维码" width="200" height="200">
