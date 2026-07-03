@@ -1,6 +1,6 @@
 import { createCards } from './heroes.js'
 
-const baseCards = createCards('flash_prize')
+const baseCards = createCards('flash_prize', 'webp')
 
 // 109、110 是额外的改版图片，人物资料仍分别沿用排名 92、96 的朱富和李立。
 const createVariantCard = (rank, assetNumber) => {
@@ -11,7 +11,7 @@ const createVariantCard = (rank, assetNumber) => {
     edition: '改版',
     images: {
       ...sourceCard.images,
-      source: `${import.meta.env.BASE_URL}assets/flash_prize/${assetNumber}.jpg`,
+      source: `${import.meta.env.BASE_URL}assets/flash_prize/${assetNumber}.webp`,
     },
   }
 }

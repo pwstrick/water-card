@@ -119,11 +119,11 @@ export const heroes = [
   hero(108, '段景住', 'DUAN JINGZHU', '金毛犬', '地狗星'),
 ]
 
-export const createCards = (assetDirectory) =>
+export const createCards = (assetDirectory, imageExtension = 'jpg') =>
   heroes.map((item, index) => ({
     ...item,
     images: {
-      source: `${import.meta.env.BASE_URL}assets/${assetDirectory}/${index + 1}.jpg`,
+      source: `${import.meta.env.BASE_URL}assets/${assetDirectory}/${index + 1}.${imageExtension}`,
       layout: assetDirectory,
     },
   }))
