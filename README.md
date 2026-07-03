@@ -8,6 +8,16 @@
 
 <img src="demo/qrcode.png" alt="水浒卡鉴赏室二维码" width="200" height="200">
 
+## 页面预览
+
+### PC 端
+
+![水浒卡鉴赏室 PC 端页面](demo/water-pc.png)
+
+### 移动端
+
+<img src="demo/water-mobile.png" alt="水浒卡鉴赏室移动端页面" width="360">
+
 ## 功能
 
 - 收录普卡、奖闪等不同卡组及 108 位好汉资料
