@@ -1,8 +1,8 @@
 # 水浒卡鉴赏室
 
-一个用于展示小浣熊水浒卡的响应式网站，提供卡片正反面鉴赏、Three.js 360° 预览以及不同版本卡片对比等功能。
+一个用于展示小浣熊水浒卡的响应式网站，提供卡片正反面鉴赏、基于 Three.js 的 3D 旋转与缩放、多版本卡片对比等功能，并支持 PC 端键盘操作及移动端触控交互。
 
-由自己设计页面和功能，由 AI 生成源码的项目，已完成组件化抽象、性能优化、单元测试、部署配置等。
+项目功能由自己设计页面，借助 AI 生成代码，累计投入约 15 小时、历经 5 轮 AI 用量周期，完成了素材搜集、开发调试、组件化重构、性能与交互体验优化、单元测试与线上部署等环节。
 
 在线体验：[https://pwstrick.github.io/water-card/](https://pwstrick.github.io/water-card/)
 
@@ -12,11 +12,16 @@
 
 ### PC 端
 
-![水浒卡鉴赏室 PC 端页面](demo/water-pc.png)
+<a href="demo/water-pc.png" target="_blank">
+  <img src="demo/water-pc.png" alt="PC 端页面" width="600">
+</a>
+
 
 ### 移动端
 
-<img src="demo/water-mobile.png" alt="水浒卡鉴赏室移动端页面" width="360">
+<a href="demo/water-mobile.png" target="_blank">
+  <img src="demo/water-mobile.png" alt="移动端页面" width="260">
+</a>
 
 ## 功能
 
