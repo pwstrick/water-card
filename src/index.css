@@ -18,6 +18,43 @@ html.mobile-device .desktop-character-switch { display: none !important; }
 /* Tailwind 4 uses the individual `translate` property, unsupported by older UC kernels. */
 .legacy-center-x { transform: translateX(-50%); }
 
+.comparison-card-scene {
+  aspect-ratio: 2 / 2.9;
+  perspective: 1100px;
+}
+
+.comparison-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .65s cubic-bezier(.22, .75, .22, 1), opacity .3s ease;
+  -webkit-transform-style: preserve-3d;
+  -webkit-transition: -webkit-transform .65s cubic-bezier(.22, .75, .22, 1), opacity .3s ease;
+}
+
+.comparison-card-inner.is-back {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+}
+
+.comparison-card-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid rgb(230 223 203 / .28);
+  border-radius: 5.5%;
+  background-color: #151914;
+  box-shadow: 0 18px 38px rgb(0 0 0 / .42);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.comparison-card-back {
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+}
+
 .grain {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.75'/%3E%3C/svg%3E");
 }
@@ -36,7 +73,6 @@ html.mobile-device .desktop-character-switch { display: none !important; }
   writing-mode: vertical-rl;
 }
 
-.bio::first-letter { float: left; margin: 7px 6px 0 0; color: #d1b56f; font-size: 34px; line-height: 1; }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; }
 }
