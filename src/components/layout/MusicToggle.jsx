@@ -45,7 +45,10 @@ export default function MusicToggle() {
             : 'border-[#555c5566] text-[#747c73] hover:border-[#8a7650] hover:text-[#d8d1bf]'
         }`}
       >
-        <span className={`font-sans text-base leading-none ${playing ? 'animate-pulse' : ''}`} aria-hidden="true">♫</span>
+        <span className={`relative font-sans text-base leading-none ${playing ? 'animate-pulse' : ''}`} aria-hidden="true">
+          ♫
+          {!playing && <span className="absolute left-1/2 top-1/2 h-px w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-current" />}
+        </span>
         <span className="max-sm:hidden mobile-device:hidden">{playing ? '播放中' : '背景音乐'}</span>
       </button>
     </>
