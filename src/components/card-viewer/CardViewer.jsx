@@ -11,7 +11,7 @@ export default function CardViewer({ card }) {
       className={`grid place-items-center transition-colors duration-300 ${
         viewer.isFocusMode
           ? 'fixed inset-0 z-40 bg-[#050705f2] backdrop-blur-sm'
-          : 'absolute inset-[70px_5%_80px_30%] max-lg:inset-[70px_2%_80px_28%] max-sm:inset-[150px_0_80px] mobile-device:inset-[150px_0_80px]'
+          : 'absolute inset-[70px_5%_80px_30%] max-lg:inset-[70px_2%_80px_28%] sm:max-lg:translate-y-16 max-sm:inset-[150px_0_80px] mobile-device:inset-[150px_0_80px]'
       }`}
     >
       {viewer.isFocusMode && (

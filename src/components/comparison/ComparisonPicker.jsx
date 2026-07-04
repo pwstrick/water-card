@@ -14,7 +14,7 @@ export default function ComparisonPicker({
 }) {
   return (
     <div className="mb-10 rounded-2xl border border-[#e6dfcb1f] bg-[#090c0aa6] p-5">
-      <div className="grid grid-cols-[auto_minmax(180px,1fr)] gap-3 max-sm:grid-cols-1 mobile-device:grid-cols-1">
+      <div className="grid grid-cols-[auto_minmax(280px,440px)] justify-start gap-3 max-sm:grid-cols-1 mobile-device:grid-cols-1">
         <SegmentedControl
           items={collections}
           activeId={pickerCollection.id}
@@ -35,7 +35,7 @@ export default function ComparisonPicker({
           listLabel="对比人物列表"
         />
       </div>
-      <p className="mb-0 mt-3 text-right font-mono text-[9px] tracking-[.12em] text-[#596059]">已选择 {selectedCount} / {MAX_COMPARISON_CARDS}</p>
+      <p className="mb-0 mt-3 text-left font-mono text-[9px] tracking-[.12em] text-[#596059]">已选择 {selectedCount} / {MAX_COMPARISON_CARDS}</p>
     </div>
   )
 }
