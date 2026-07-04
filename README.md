@@ -12,7 +12,7 @@
 
 | PC 端 | 移动端 |
 | --- | --- |
-| [<img src="demo/water-pc.png" alt="PC 端页面" width="650">](demo/water-pc.png) | [<img src="demo/water-mobile.png" alt="移动端页面" width="120">](demo/water-mobile.png) |
+| [<img src="demo/water-pc.png" alt="PC 端页面" width="503">](demo/water-pc.png) | [<img src="demo/water-mobile.png" alt="移动端页面" width="120">](demo/water-mobile.png) |
 
 ## 功能
 
