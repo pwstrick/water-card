@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import LoadingIndicator from '../common/LoadingIndicator'
+import ImageLoadError from '../common/ImageLoadError'
 import { getCardFaceBackgroundStyle } from '../../config/cardImageLayouts'
+import useImageRetry from '../../hooks/useImageRetry'
 
 export default function ComparisonCard({ card, comparisonKey, face }) {
   const [loadState, setLoadState] = useState('loading')
+  const { attempt: loadAttempt, retry: retryLoad, isAutoRetrying } = useImageRetry(loadState, card.images.source)
   const {
     attributes,
     listeners,
@@ -34,7 +37,7 @@ export default function ComparisonCard({ card, comparisonKey, face }) {
     return () => {
       disposed = true
     }
-  }, [card.images.source])
+  }, [card.images.source, loadAttempt])
 
   return (
     <article
@@ -60,8 +63,13 @@ export default function ComparisonCard({ card, comparisonKey, face }) {
             <LoadingIndicator label={`${card.name}卡片加载中`} size="sm" glow showLabel={false} />
           </div>
         )}
-        {loadState === 'error' && (
-          <div className="absolute inset-0 z-10 grid place-items-center rounded-[5.5%] border border-[#bc675755] bg-[#0b0f0c] text-xs tracking-[.12em] text-[#bc6757]" role="alert">图片加载失败</div>
+        {loadState === 'error' && isAutoRetrying && (
+          <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-[5.5%] border border-[#e6dfcb1f] bg-[#0b0f0c]">
+            <LoadingIndicator label={`${card.name}卡片重新加载中`} size="sm" glow showLabel={false} />
+          </div>
+        )}
+        {loadState === 'error' && !isAutoRetrying && (
+          <ImageLoadError className="rounded-[5.5%] border border-[#bc675755]" onRetry={retryLoad} />
         )}
       </div>
     </article>

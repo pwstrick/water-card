@@ -1,4 +1,5 @@
 import LoadingIndicator from '../common/LoadingIndicator'
+import ImageLoadError from '../common/ImageLoadError'
 import CardViewerControls from './CardViewerControls'
 import FocusModeToolbar from './FocusModeToolbar'
 import useCardViewer from './useCardViewer'
@@ -40,7 +41,14 @@ export default function CardViewer({ card }) {
             />
           </div>
         )}
-        {viewer.loadState === 'error' && <span className="absolute inset-0 grid place-items-center text-xs text-[#bc6757]">卡片图片加载失败</span>}
+        {viewer.loadState === 'error' && viewer.isAutoRetrying && (
+          <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center bg-[#0b0f0c]">
+            <LoadingIndicator label="加载失败，正在重试…" panel glow pulseLabel />
+          </div>
+        )}
+        {viewer.loadState === 'error' && !viewer.isAutoRetrying && (
+          <ImageLoadError message="卡片图片加载失败" onRetry={viewer.retryLoad} />
+        )}
       </div>
 
       <AngleReadout angle={viewer.angle} isFocusMode={viewer.isFocusMode} />

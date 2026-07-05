@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CARD_ZOOM_LIMITS, createThreeCardScene } from './threeCardScene'
 import { isUcBrowser } from '../../utils/device'
+import useImageRetry from '../../hooks/useImageRetry'
 
 // 这些元素拥有自己的键盘语义，聚焦时不应同时触发卡片旋转、翻面或缩放。
 const INTERACTIVE_ELEMENT_SELECTOR = [
@@ -32,6 +33,7 @@ export default function useCardViewer(card) {
   const [loadState, setLoadState] = useState('loading')
   const [interactionMode, setInteractionMode] = useState('pan')
   const ucBrowser = isUcBrowser()
+  const { attempt: loadAttempt, retry: retryLoad, isAutoRetrying } = useImageRetry(loadState, card.images.source)
 
   const goTo = useCallback((nextAngle) => viewerRef.current?.goTo(nextAngle), [])
   const changeZoom = useCallback((direction) => viewerRef.current?.changeZoom(direction), [])
@@ -67,7 +69,7 @@ export default function useCardViewer(card) {
       if (viewerRef.current === viewer) viewerRef.current = null
       viewer.dispose()
     }
-  }, [card.edition, card.images.layout, card.images.source, card.name])
+  }, [card.edition, card.images.layout, card.images.source, card.name, loadAttempt])
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -95,6 +97,7 @@ export default function useCardViewer(card) {
     isBack: facingBack,
     dragging,
     loadState,
+    isAutoRetrying,
     interactionMode,
     isFocusMode: zoom > 1.08,
     isUcBrowser: ucBrowser,
@@ -104,6 +107,7 @@ export default function useCardViewer(card) {
     changeZoom,
     resetView,
     downloadView,
+    retryLoad,
     selectInteractionMode,
   }
 }
