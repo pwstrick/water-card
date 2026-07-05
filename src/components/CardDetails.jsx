@@ -3,10 +3,9 @@ import OperationTips from './common/OperationTips'
 import { CARD_VIEWER_OPERATION_TIPS } from '../config/operationTips'
 
 export default function CardDetails({ card, cards, collection, onCardChange }) {
-  const stats = [
-    ['绰号', card.nickname],
-    ['星号', card.star],
-  ]
+  const stats = card.kind === 'villain'
+    ? [['身份', card.identity], ['系列', card.series]]
+    : [['绰号', card.nickname], ['星号', card.star]]
 
   return (
     <aside
@@ -22,6 +21,8 @@ export default function CardDetails({ card, cards, collection, onCardChange }) {
         <span className={`ml-3 inline-flex -translate-y-2 rounded-full border px-2.5 py-1 font-serif text-[9px] tracking-[.18em] ${
           collection.id === 'flash_prize'
             ? 'border-[#c7a76280] bg-[#c7a76214] text-[#d5b66f]'
+            : collection.id === 'villains'
+              ? 'border-[#bc675780] bg-[#bc675714] text-[#d77a68]'
             : 'border-[#73797066] text-[#858b83]'
         }`}>{collection.label}{card.edition ? ` · ${card.edition}` : ''}</span>
       </div>

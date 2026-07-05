@@ -173,7 +173,7 @@ export default function CharacterListbox({
                 className={`flex w-full items-center rounded-md px-3 py-2.5 text-left text-xs transition-colors focus-visible:bg-[#b497542e] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#9d8557] disabled:cursor-not-allowed disabled:opacity-35 ${current ? 'bg-[#b497541f]' : 'hover:bg-[#ffffff0a]'}`}
               >
                 <span className="w-10 shrink-0 font-mono text-[10px] text-[#73776d]">{card.displayId ?? card.id}</span>
-                <span className={`min-w-0 flex-1 truncate ${selected ? 'text-[#c9ad65]' : 'text-[#b9b8ac]'}`}>{card.nickname}</span>
+                <span className={`min-w-0 flex-1 truncate ${selected ? 'text-[#c9ad65]' : 'text-[#b9b8ac]'}`}>{card.nickname ?? card.identity}</span>
                 <span className={`ml-3 shrink-0 ${selected ? 'text-[#c9ad65]' : 'text-[#b9b8ac]'}`}>{card.name}</span>
                 {card.edition && <span className="ml-2 shrink-0 text-[9px] text-[#bc6757]">{card.edition}</span>}
                 <span className={`ml-2 w-4 shrink-0 text-center text-[#c9ad65] ${selected ? 'opacity-100' : 'opacity-0'}`}>✓</span>
@@ -191,7 +191,7 @@ function CharacterSummary({ card }) {
     <span className="min-w-0 truncate text-xs tracking-[.08em] text-[#d3b96f]">
       <span className="font-mono">{card.displayId ?? card.id}</span>
       <span className="mx-2 text-[#625b49]">·</span>
-      <span>{card.nickname}</span>
+      <span>{card.nickname ?? card.identity}</span>
       <span className="mx-2 text-[#625b49]">·</span>
       <span>{card.name}</span>
       {card.edition && <span className="ml-2 text-[9px] text-[#bc6757]">{card.edition}</span>}

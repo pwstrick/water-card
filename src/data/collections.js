@@ -1,5 +1,8 @@
 import { cards as standardCards } from './standard'
 import { cards as flashPrizeCards } from './flash_prize'
+import { createVillainCards } from './villains'
+
+const villainCards = createVillainCards()
 
 // 鉴赏区的首次进入状态；切换卡组时会继续由当前组件状态接管。
 export const DEFAULT_COLLECTION_ID = 'standard'
@@ -16,4 +19,5 @@ export const DEFAULT_COMPARISON_CARDS = [
 export const collections = [
   { id: 'standard', label: '普卡', cards: standardCards },
   { id: 'flash_prize', label: '奖闪', cards: flashPrizeCards },
+  { id: 'villains', label: '恶人', cards: villainCards },
 ]

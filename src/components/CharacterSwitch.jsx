@@ -16,7 +16,7 @@ export default function CharacterSwitch({ card, cards, onCardChange }) {
           type="button"
           onClick={() => selectOffset(-1)}
           className="rounded border border-[#3a4039] bg-[#111611] text-lg text-[#aaa694] transition hover:border-[#8a7650] hover:text-[#e0c887]"
-          aria-label="上一位好汉"
+          aria-label="上一位人物"
         >
           ‹
         </button>
@@ -31,7 +31,7 @@ export default function CharacterSwitch({ card, cards, onCardChange }) {
           type="button"
           onClick={() => selectOffset(1)}
           className="rounded border border-[#3a4039] bg-[#111611] text-lg text-[#aaa694] transition hover:border-[#8a7650] hover:text-[#e0c887]"
-          aria-label="下一位好汉"
+          aria-label="下一位人物"
         >
           ›
         </button>
