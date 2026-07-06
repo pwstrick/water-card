@@ -7,6 +7,16 @@ const villainCards = createVillainCards()
 const standardCollectionCards = [...standardCards, ...villainCards]
 const codePermCards = [...codePermHeroCards, ...codePermVillainCards]
 
+const createCollection = ({ cardEffects, ...collection }) => ({
+  ...collection,
+  cards: cardEffects
+    ? collection.cards.map((card) => ({
+      ...card,
+      effects: { ...card.effects, ...cardEffects },
+    }))
+    : collection.cards,
+})
+
 // 鉴赏区的首次进入状态；切换卡组时会继续由当前组件状态接管。
 export const DEFAULT_COLLECTION_ID = 'standard'
 export const DEFAULT_CARD_ID = '001'
@@ -20,7 +30,23 @@ export const DEFAULT_COMPARISON_CARDS = [
 ]
 
 export const collections = [
-  { id: 'standard', label: '普卡', cards: standardCollectionCards },
-  { id: 'flash_prize', label: '奖闪', cards: flashPrizeCards },
-  { id: 'code_perm', label: '冷烫', cards: codePermCards },
+  createCollection({
+    id: 'standard',
+    label: '普卡',
+    cards: standardCollectionCards,
+    presentation: { badgeTone: 'neutral', kindBadgeTones: { villain: 'danger' } },
+  }),
+  createCollection({
+    id: 'flash_prize',
+    label: '奖闪',
+    cards: flashPrizeCards,
+    presentation: { badgeTone: 'gold' },
+    cardEffects: { foil: true },
+  }),
+  createCollection({
+    id: 'code_perm',
+    label: '冷烫',
+    cards: codePermCards,
+    presentation: { badgeTone: 'silver' },
+  }),
 ]

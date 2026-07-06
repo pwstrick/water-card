@@ -232,10 +232,10 @@ export const heroes = [
 ]
 
 export const createCards = (assetDirectory, imageExtension = 'jpg') =>
-  heroes.map((item, index) => ({
+  heroes.map((item) => ({
     ...item,
     images: {
-      source: `${import.meta.env.BASE_URL}assets/${assetDirectory}/${index + 1}.${imageExtension}`,
+      source: `${import.meta.env.BASE_URL}assets/${assetDirectory}/${item.number}.${imageExtension}`,
       layout: assetDirectory,
     },
   }))

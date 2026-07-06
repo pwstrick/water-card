@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { getCardImageLayout } from '../../config/cardImageLayouts'
+import { flipPixelRows } from '../../utils/imagePixels'
 
 // 相机沿 Z 轴与卡片的距离：数值越小，卡片在视口中越大。BASE_DISTANCE 对应界面显示的 100%。
 const BASE_DISTANCE = 5.6
@@ -62,8 +63,8 @@ export function createThreeCardScene({
   const camera = new THREE.PerspectiveCamera(38, 1, 0.02, 30)
   camera.position.set(0, 0.12, BASE_DISTANCE)
 
-  // 下载功能会直接读取 canvas；改用 RenderTarget 前不能关闭 preserveDrawingBuffer。
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true })
+  // 截图改用临时 RenderTarget，主渲染器无需长期保留颜色缓冲。
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: false })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.NoToneMapping
@@ -117,7 +118,7 @@ export function createThreeCardScene({
       group.add(front)
 
       // 奖闪只在正面叠加一层随倾斜移动的银白反光；正面网格背向相机时会被自动剔除。
-      if (card.images.layout === 'flash_prize') {
+      if (card.effects?.foil) {
         foilMaterial = createFoilMaterial(width, height)
         materials.push(foilMaterial)
         const frontFoil = new THREE.Mesh(frontFaceGeometry, foilMaterial)
@@ -521,9 +522,40 @@ async function loadCardTexture(textureLoader, renderer, url) {
 }
 
 function downloadCanvas(renderer, scene, camera, card, angle, isDisposed) {
-  renderer.render(scene, camera)
+  if (isDisposed()) return
+  const size = renderer.getDrawingBufferSize(new THREE.Vector2())
+  const width = Math.max(1, Math.round(size.x))
+  const height = Math.max(1, Math.round(size.y))
+  const renderTarget = new THREE.WebGLRenderTarget(width, height, {
+    format: THREE.RGBAFormat,
+    type: THREE.UnsignedByteType,
+    depthBuffer: true,
+    stencilBuffer: false,
+    samples: Math.min(4, renderer.capabilities.maxSamples ?? 0),
+  })
+  renderTarget.texture.colorSpace = renderer.outputColorSpace
+  const previousRenderTarget = renderer.getRenderTarget()
+  const pixels = new Uint8Array(width * height * 4)
+
+  try {
+    renderer.setRenderTarget(renderTarget)
+    renderer.clear()
+    renderer.render(scene, camera)
+    renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
+  } finally {
+    renderer.setRenderTarget(previousRenderTarget)
+    renderTarget.dispose()
+  }
+
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const context = canvas.getContext('2d')
+  if (!context) return
+  context.putImageData(new ImageData(flipPixelRows(pixels, width, height), width, height), 0, 0)
+
   const fileName = `水浒卡-${card.name}${card.edition ? `-${card.edition}` : ''}-${String(angle).padStart(3, '0')}度.png`
-  renderer.domElement.toBlob((blob) => {
+  canvas.toBlob((blob) => {
     if (!blob || isDisposed()) return
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')

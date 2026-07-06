@@ -1,6 +1,7 @@
 import CharacterSwitch from './CharacterSwitch'
 import OperationTips from './common/OperationTips'
 import { CARD_VIEWER_OPERATION_TIPS } from '../config/operationTips'
+import { getCardBadgeClass } from '../config/cardPresentation'
 
 export default function CardDetails({ card, cards, collection, onCardChange }) {
   const stats = card.kind === 'villain'
@@ -18,15 +19,9 @@ export default function CardDetails({ card, cards, collection, onCardChange }) {
 
       <div className="mb-10 font-mono text-[46px] tracking-[-.06em] text-[#dad3bf] max-lg:mb-8 max-sm:text-[34px] mobile-device:mb-8 mobile-device:text-[34px]">
         {card.displayId ?? card.id}
-        <span className={`ml-3 inline-flex -translate-y-2 rounded-full border px-2.5 py-1 font-serif text-[9px] tracking-[.18em] ${
-          collection.id === 'flash_prize'
-            ? 'border-[#c7a76280] bg-[#c7a76214] text-[#d5b66f]'
-            : collection.id.startsWith('code_perm')
-              ? 'border-[#9fc3cd80] bg-[#9fc3cd14] text-[#bdd8df]'
-            : card.kind === 'villain'
-              ? 'border-[#bc675780] bg-[#bc675714] text-[#d77a68]'
-            : 'border-[#73797066] text-[#858b83]'
-        }`}>{collection.label}{card.edition ? ` · ${card.edition}` : ''}</span>
+        <span className={`ml-3 inline-flex -translate-y-2 rounded-full border px-2.5 py-1 font-serif text-[9px] tracking-[.18em] ${getCardBadgeClass(collection, card)}`}>
+          {collection.label}{card.edition ? ` · ${card.edition}` : ''}
+        </span>
       </div>
 
       <div className="border-t border-[#30352f]">
