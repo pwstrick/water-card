@@ -16,7 +16,8 @@
 
 ## 功能
 
-- 收录普卡、奖闪等不同卡组及 108 位好汉和 6 大恶人资料
+- 收录普卡、奖闪、冷烫三类卡片，以及 108 位好汉和 6 大恶人资料
+- 普卡和冷烫均在同一人物选择器中提供全部 114 位人物
 - 支持拖动旋转、缩放和正反面切换的 3D 卡片预览
 - 支持卡片预览图下载
 - 最多选择 6 张卡片进行正反面对比和拖动排序
@@ -54,7 +55,9 @@ npm run preview   # 预览构建结果
 ## 项目结构
 
 ```text
-public/assets/               卡片图片资源
+public/assets/standard/      普卡及恶人卡图
+public/assets/flash_prize/   奖闪卡图
+public/assets/code_perm/     冷烫卡图
 src/components/card-viewer/  Three.js 卡片预览
 src/components/comparison/   多卡对比区域
 src/components/common/       通用交互组件
@@ -65,9 +68,11 @@ tests/                       单元测试
 
 ## 卡片数据
 
-人物基础资料维护在 `src/data/heroes.js`，卡组在 `src/data/collections.js` 中统一注册。每张卡图包含正反两面，具体裁切范围由 `src/config/cardImageLayouts.js` 配置。
+好汉和恶人的基础资料分别维护在 `src/data/heroes.js`、`src/data/villains.js`，卡组在 `src/data/collections.js` 中统一注册。每张卡图包含正反两面，具体裁切范围由 `src/config/cardImageLayouts.js` 配置。
 
-新增完整卡组时，建议先将图片转换为质量 80～85 的 WebP，再按人物顺序以 `1.webp`～`108.webp` 命名并放入 `public/assets/<卡组目录>/`，然后创建对应的数据模块并注册到 `collections`。如果卡图的正反面尺寸或留白与现有卡组不同，还需要增加独立的裁切配置。
+当前冷烫卡组采用横向合并图：正面在左、背面在右，两面等宽，图片宽度为 1800px，WebP 质量为 90。文件编号 `1.webp`～`108.webp` 对应 108 位好汉，`109.webp`～`114.webp` 对应 6 大恶人。
+
+新增完整卡组时，建议将正反面合并后转换为 WebP，并按上述人物编号放入 `public/assets/<卡组目录>/`，然后创建对应的数据模块并注册到 `collections`。如果卡图的正反面比例、位置或留白与现有卡组不同，还需要在 `src/config/cardImageLayouts.js` 中增加独立的裁切配置。
 
 ## 部署
 
