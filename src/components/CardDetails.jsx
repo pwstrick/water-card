@@ -23,7 +23,7 @@ export default function CardDetails({ card, cards, collection, onCardChange }) {
             ? 'border-[#c7a76280] bg-[#c7a76214] text-[#d5b66f]'
             : collection.id.startsWith('code_perm')
               ? 'border-[#9fc3cd80] bg-[#9fc3cd14] text-[#bdd8df]'
-            : collection.id === 'villains'
+            : card.kind === 'villain'
               ? 'border-[#bc675780] bg-[#bc675714] text-[#d77a68]'
             : 'border-[#73797066] text-[#858b83]'
         }`}>{collection.label}{card.edition ? ` · ${card.edition}` : ''}</span>

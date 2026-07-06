@@ -4,6 +4,8 @@ import { createVillainCards } from './villains'
 import { heroCards as codePermHeroCards, villainCards as codePermVillainCards } from './code_perm'
 
 const villainCards = createVillainCards()
+const standardCollectionCards = [...standardCards, ...villainCards]
+const codePermCards = [...codePermHeroCards, ...codePermVillainCards]
 
 // 鉴赏区的首次进入状态；切换卡组时会继续由当前组件状态接管。
 export const DEFAULT_COLLECTION_ID = 'standard'
@@ -18,9 +20,7 @@ export const DEFAULT_COMPARISON_CARDS = [
 ]
 
 export const collections = [
-  { id: 'standard', label: '普卡', cards: standardCards },
+  { id: 'standard', label: '普卡', cards: standardCollectionCards },
   { id: 'flash_prize', label: '奖闪', cards: flashPrizeCards },
-  { id: 'code_perm_heroes', label: '冷烫好汉', cards: codePermHeroCards },
-  { id: 'villains', label: '恶人', cards: villainCards },
-  { id: 'code_perm_villains', label: '冷烫恶人', cards: codePermVillainCards },
+  { id: 'code_perm', label: '冷烫', cards: codePermCards },
 ]
