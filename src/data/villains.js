@@ -19,10 +19,14 @@ export const villains = [
   villain(112, '恶06', '西门庆', 'XIMEN QING', '阳谷县豪绅', '仗财势横行，与潘金莲私通并参与毒害武大郎；最终被返乡查明真相的武松杀死。'),
 ]
 
-export const createVillainCards = () => villains.map((item) => ({
+export const createVillainCards = ({
+  assetDirectory = 'standard',
+  layout = 'standard',
+  imageExtension = 'webp',
+} = {}) => villains.map((item) => ({
   ...item,
   images: {
-    source: `${import.meta.env.BASE_URL}assets/standard/${item.number}.webp`,
-    layout: 'standard',
+    source: `${import.meta.env.BASE_URL}assets/${assetDirectory}/${item.number}.${imageExtension}`,
+    layout,
   },
 }))

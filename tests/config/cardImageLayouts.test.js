@@ -13,6 +13,13 @@ describe('cardImageLayouts', () => {
     })
   })
 
+  it('将冷烫卡图按左右等分裁切', () => {
+    expect(getCardFaceBackgroundStyle('code_perm', 'back')).toEqual({
+      backgroundSize: '200% 100%',
+      backgroundPosition: '100% 0%',
+    })
+  })
+
   it('正确换算普卡正面的偏移比例', () => {
     expect(getCardFaceBackgroundStyle('standard', 'front')).toEqual({
       backgroundSize: '217.4% 106.2%',

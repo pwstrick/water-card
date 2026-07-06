@@ -1,6 +1,7 @@
 import { cards as standardCards } from './standard'
 import { cards as flashPrizeCards } from './flash_prize'
 import { createVillainCards } from './villains'
+import { heroCards as codePermHeroCards, villainCards as codePermVillainCards } from './code_perm'
 
 const villainCards = createVillainCards()
 
@@ -19,5 +20,7 @@ export const DEFAULT_COMPARISON_CARDS = [
 export const collections = [
   { id: 'standard', label: '普卡', cards: standardCards },
   { id: 'flash_prize', label: '奖闪', cards: flashPrizeCards },
+  { id: 'code_perm_heroes', label: '冷烫好汉', cards: codePermHeroCards },
   { id: 'villains', label: '恶人', cards: villainCards },
+  { id: 'code_perm_villains', label: '冷烫恶人', cards: codePermVillainCards },
 ]
