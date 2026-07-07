@@ -1,4 +1,8 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import useSearchableListbox from '../../hooks/useSearchableListbox'
+import { getListboxNavigationIndex } from '../../utils/listboxNavigation'
+
+const shouldFocusSearchOnOpen = () => !document.documentElement.classList.contains('mobile-device')
 
 export default function CharacterListbox({
   cards,
@@ -12,25 +16,30 @@ export default function CharacterListbox({
   className = '',
 }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [activeIndex, setActiveIndex] = useState(0)
   const listboxId = useId()
   const rootRef = useRef(null)
   const triggerRef = useRef(null)
+  const searchRef = useRef(null)
   const listRef = useRef(null)
   const optionRefs = useRef([])
   const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds])
-  const currentIndex = Math.max(0, cards.findIndex((card) => card.id === currentCard.id))
+  const {
+    activeIndex,
+    cardIsDisabled,
+    currentIndex,
+    filteredCards,
+    findEnabledIndex,
+    resetSearch,
+    searchQuery,
+    setActiveIndex,
+    setSearchQuery,
+  } = useSearchableListbox({ cards, currentCard, isDisabled })
 
-  const cardIsDisabled = (card) => !card || (isDisabled?.(card) ?? false)
-
-  const findEnabledIndex = (startIndex, direction, includeStart = false) => {
-    if (cards.length === 0) return -1
-    for (let offset = includeStart ? 0 : 1; offset <= cards.length; offset += 1) {
-      const index = (startIndex + direction * offset + cards.length) % cards.length
-      if (!cardIsDisabled(cards[index])) return index
-    }
-    return -1
-  }
+  const closeList = useCallback(({ restoreFocus = false } = {}) => {
+    setIsOpen(false)
+    resetSearch()
+    if (restoreFocus) triggerRef.current?.focus()
+  }, [resetSearch])
 
   const focusOption = (index) => {
     if (index < 0) return
@@ -46,6 +55,7 @@ export default function CharacterListbox({
   }
 
   const openList = (preferredIndex = currentIndex) => {
+    resetSearch()
     const nextIndex = findEnabledIndex(preferredIndex, 1, true)
     if (nextIndex < 0) return
     setActiveIndex(nextIndex)
@@ -56,31 +66,25 @@ export default function CharacterListbox({
     if (!card || cardIsDisabled(card)) return
     onSelect(card)
     if (!closeOnSelect) return
-    setIsOpen(false)
-    requestAnimationFrame(() => triggerRef.current?.focus())
+    closeList({ restoreFocus: true })
   }
 
   useEffect(() => {
     if (!isOpen) return undefined
 
     const closeOnOutsideClick = (event) => {
-      if (!rootRef.current?.contains(event.target)) setIsOpen(false)
+      if (!rootRef.current?.contains(event.target)) closeList()
     }
     const closeOnEscape = (event) => {
       if (event.key !== 'Escape') return
-      setIsOpen(false)
-      triggerRef.current?.focus()
+      closeList({ restoreFocus: true })
     }
 
     document.addEventListener('pointerdown', closeOnOutsideClick)
     document.addEventListener('keydown', closeOnEscape)
-    // 等列表完成挂载后，再聚焦键盘活动项并移到可视区域中央。
+    // 等列表完成挂载后先聚焦搜索框，方便人物较多时快速过滤。
     const frame = requestAnimationFrame(() => {
-      const activeItem = optionRefs.current[activeIndex]
-      if (activeItem && listRef.current) {
-        activeItem.focus()
-        listRef.current.scrollTop = activeItem.offsetTop - listRef.current.clientHeight / 2
-      }
+      if (shouldFocusSearchOnOpen()) searchRef.current?.focus()
     })
 
     return () => {
@@ -88,43 +92,75 @@ export default function CharacterListbox({
       document.removeEventListener('pointerdown', closeOnOutsideClick)
       document.removeEventListener('keydown', closeOnEscape)
     }
-  }, [isOpen])
+  }, [closeList, isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+    optionRefs.current = optionRefs.current.slice(0, filteredCards.length)
+    const nextIndex = findEnabledIndex(Math.min(activeIndex, filteredCards.length - 1), 1, true)
+    setActiveIndex(Math.max(0, nextIndex))
+  }, [activeIndex, filteredCards, findEnabledIndex, isOpen, setActiveIndex])
 
   const handleTriggerKeyDown = (event) => {
-    let nextIndex = -1
-    if (event.key === 'ArrowDown') nextIndex = findEnabledIndex(currentIndex, 1, true)
-    else if (event.key === 'ArrowUp') nextIndex = findEnabledIndex(currentIndex, -1, true)
-    else if (event.key === 'Home') nextIndex = findEnabledIndex(0, 1, true)
-    else if (event.key === 'End') nextIndex = findEnabledIndex(cards.length - 1, -1, true)
-    else return
+    const nextIndex = getListboxNavigationIndex({
+      key: event.key,
+      startIndex: currentIndex,
+      itemCount: filteredCards.length,
+      findEnabledIndex,
+      includeStart: true,
+    })
+    if (nextIndex < 0) return
 
     event.preventDefault()
     openList(nextIndex)
   }
 
-  const handleListKeyDown = (event) => {
-    let nextIndex = -1
-    if (event.key === 'ArrowDown') nextIndex = findEnabledIndex(activeIndex, 1)
-    else if (event.key === 'ArrowUp') nextIndex = findEnabledIndex(activeIndex, -1)
-    else if (event.key === 'Home') nextIndex = findEnabledIndex(0, 1, true)
-    else if (event.key === 'End') nextIndex = findEnabledIndex(cards.length - 1, -1, true)
-    else if (event.key === 'Enter' || event.key === ' ') {
+  const handleSearchKeyDown = (event) => {
+    const nextIndex = getListboxNavigationIndex({
+      key: event.key,
+      startIndex: activeIndex,
+      itemCount: filteredCards.length,
+      findEnabledIndex,
+      includeStart: true,
+    })
+
+    if (nextIndex >= 0) {
       event.preventDefault()
-      selectCard(cards[activeIndex])
+      focusOption(nextIndex)
+    } else if (event.key === 'Enter') {
+      event.preventDefault()
+      selectCard(filteredCards[activeIndex])
+    } else if (event.key === 'Escape') {
+      event.preventDefault()
+      event.stopPropagation()
+      closeList({ restoreFocus: true })
+    }
+  }
+
+  const handleListKeyDown = (event) => {
+    const nextIndex = getListboxNavigationIndex({
+      key: event.key,
+      startIndex: activeIndex,
+      itemCount: filteredCards.length,
+      findEnabledIndex,
+    })
+
+    if (nextIndex >= 0) {
+      event.preventDefault()
+      focusOption(nextIndex)
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      selectCard(filteredCards[activeIndex])
       return
     } else if (event.key === 'Escape') {
       event.preventDefault()
       event.stopPropagation()
-      setIsOpen(false)
-      triggerRef.current?.focus()
+      closeList({ restoreFocus: true })
       return
     } else if (event.key === 'Tab') {
-      setIsOpen(false)
+      closeList()
       return
     } else return
-
-    event.preventDefault()
-    focusOption(nextIndex)
   }
 
   return (
@@ -132,7 +168,7 @@ export default function CharacterListbox({
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => (isOpen ? setIsOpen(false) : openList())}
+        onClick={() => (isOpen ? closeList() : openList())}
         onKeyDown={handleTriggerKeyDown}
         className={`flex min-h-11 w-full min-w-0 items-center justify-between gap-2 rounded-lg border bg-[#111611] px-3 text-left transition-colors ${isOpen ? 'border-[#9d8557] shadow-[0_0_0_2px_#9d85571f]' : 'border-[#3a4039] hover:border-[#655a43]'}`}
         aria-label={triggerLabel}
@@ -146,40 +182,57 @@ export default function CharacterListbox({
 
       {isOpen && (
         <div
-          id={listboxId}
-          ref={listRef}
-          role="listbox"
-          aria-label={listLabel}
-          aria-multiselectable={!closeOnSelect || undefined}
-          onKeyDown={handleListKeyDown}
-          className="absolute left-0 top-[calc(100%+8px)] z-50 max-h-72 w-full min-w-[220px] overflow-y-auto rounded-lg border border-[#504936] bg-[#0d110ef5] p-1.5 shadow-[0_20px_50px_#000c] backdrop-blur-md [scrollbar-color:#665a3d_#151a15] [scrollbar-width:thin]"
+          className="absolute left-0 top-[calc(100%+8px)] z-50 w-full min-w-[240px] rounded-lg border border-[#504936] bg-[#0d110ef5] p-1.5 shadow-[0_20px_50px_#000c] backdrop-blur-md"
         >
-          {cards.map((card, index) => {
-            const current = card.id === currentCard.id
-            const selected = selectedIdSet.has(card.id)
-            const disabled = isDisabled?.(card) ?? false
-            return (
-              <button
-                key={card.id}
-                ref={(element) => { optionRefs.current[index] = element }}
-                type="button"
-                role="option"
-                aria-selected={selected}
-                tabIndex={activeIndex === index ? 0 : -1}
-                data-current={current}
-                disabled={disabled}
-                onFocus={() => setActiveIndex(index)}
-                onClick={() => selectCard(card)}
-                className={`flex w-full items-center rounded-md px-3 py-2.5 text-left text-xs transition-colors focus-visible:bg-[#b497542e] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#9d8557] disabled:cursor-not-allowed disabled:opacity-35 ${current ? 'bg-[#b497541f]' : 'hover:bg-[#ffffff0a]'}`}
-              >
-                <span className="w-10 shrink-0 font-mono text-[10px] text-[#73776d]">{card.displayId ?? card.id}</span>
-                <span className={`min-w-0 flex-1 truncate ${selected ? 'text-[#c9ad65]' : 'text-[#b9b8ac]'}`}>{card.nickname ?? card.identity}</span>
-                <span className={`ml-3 shrink-0 ${selected ? 'text-[#c9ad65]' : 'text-[#b9b8ac]'}`}>{card.name}</span>
-                {card.edition && <span className="ml-2 shrink-0 text-[9px] text-[#bc6757]">{card.edition}</span>}
-                <span className={`ml-2 w-4 shrink-0 text-center text-[#c9ad65] ${selected ? 'opacity-100' : 'opacity-0'}`}>✓</span>
-              </button>
-            )
-          })}
+          <input
+            ref={searchRef}
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            placeholder="搜索中文或拼音"
+            className="mb-1.5 h-9 w-full rounded-md border border-[#3a4039] bg-[#090d0af2] px-3 text-xs tracking-[.06em] text-[#d8d1bf] outline-none transition placeholder:text-[#686f68] focus:border-[#9d8557] focus:ring-1 focus:ring-[#9d855766]"
+            aria-label="搜索人物"
+          />
+          <div
+            id={listboxId}
+            ref={listRef}
+            role="listbox"
+            aria-label={listLabel}
+            aria-multiselectable={!closeOnSelect || undefined}
+            onKeyDown={handleListKeyDown}
+            className="max-h-64 overflow-y-auto [scrollbar-color:#665a3d_#151a15] [scrollbar-width:thin]"
+          >
+            {filteredCards.map((card, index) => {
+              const current = card.id === currentCard.id
+              const selected = selectedIdSet.has(card.id)
+              const disabled = cardIsDisabled(card)
+              return (
+                <button
+                  key={card.id}
+                  ref={(element) => { optionRefs.current[index] = element }}
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  tabIndex={activeIndex === index ? 0 : -1}
+                  data-current={current}
+                  disabled={disabled}
+                  onFocus={() => setActiveIndex(index)}
+                  onClick={() => selectCard(card)}
+                  className={`flex w-full items-center rounded-md px-3 py-2.5 text-left text-xs transition-colors focus-visible:bg-[#b497542e] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#9d8557] disabled:cursor-not-allowed disabled:opacity-35 ${current ? 'bg-[#b497541f]' : 'hover:bg-[#ffffff0a]'}`}
+                >
+                  <span className="w-10 shrink-0 font-mono text-[10px] text-[#73776d]">{card.displayId ?? card.id}</span>
+                  <span className={`min-w-0 flex-1 truncate ${selected ? 'text-[#c9ad65]' : 'text-[#b9b8ac]'}`}>{card.nickname ?? card.identity}</span>
+                  <span className={`ml-3 shrink-0 ${selected ? 'text-[#c9ad65]' : 'text-[#b9b8ac]'}`}>{card.name}</span>
+                  {card.edition && <span className="ml-2 shrink-0 text-[9px] text-[#bc6757]">{card.edition}</span>}
+                  <span className={`ml-2 w-4 shrink-0 text-center text-[#c9ad65] ${selected ? 'opacity-100' : 'opacity-0'}`}>✓</span>
+                </button>
+              )
+            })}
+            {filteredCards.length === 0 && (
+              <div className="px-3 py-5 text-center text-xs tracking-[.12em] text-[#777367]">没有匹配人物</div>
+            )}
+          </div>
         </div>
       )}
     </div>

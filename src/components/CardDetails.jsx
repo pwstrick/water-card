@@ -39,12 +39,12 @@ export default function CardDetails({ card, cards, collection, onCardChange }) {
         </div>
       </div>
 
-      <section className="border-b border-[#30352f] py-5" aria-labelledby="hero-introduction-title">
+      <section className="border-[#30352f] py-5" aria-labelledby="hero-introduction-title">
         <h2 id="hero-introduction-title" className="mb-3 mt-0 text-[9px] font-normal tracking-[.3em] text-[#686f68]">人物简介</h2>
         <p className="m-0 text-xs leading-6 tracking-[.08em] text-[#aaa89f]">{card.introduction}</p>
       </section>
 
-      <OperationTips items={CARD_VIEWER_OPERATION_TIPS} className="mt-10" />
+      <OperationTips items={CARD_VIEWER_OPERATION_TIPS} className="mt-5" />
     </aside>
   )
 }

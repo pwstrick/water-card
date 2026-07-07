@@ -1,0 +1,16 @@
+export const getListboxNavigationIndex = ({
+  key,
+  startIndex,
+  itemCount,
+  findEnabledIndex,
+  includeStart = false,
+}) => {
+  if (itemCount <= 0) return -1
+
+  if (key === 'ArrowDown') return findEnabledIndex(startIndex, 1, includeStart)
+  if (key === 'ArrowUp') return findEnabledIndex(startIndex, -1, includeStart)
+  if (key === 'Home') return findEnabledIndex(0, 1, true)
+  if (key === 'End') return findEnabledIndex(itemCount - 1, -1, true)
+
+  return -1
+}
