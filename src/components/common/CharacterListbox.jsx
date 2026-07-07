@@ -10,7 +10,6 @@ export default function CharacterListbox({
   selectedIds = [],
   onSelect,
   isDisabled,
-  closeOnSelect = true,
   triggerLabel = '选择水浒人物',
   listLabel = '水浒人物列表',
   className = '',
@@ -65,7 +64,6 @@ export default function CharacterListbox({
   const selectCard = (card) => {
     if (!card || cardIsDisabled(card)) return
     onSelect(card)
-    if (!closeOnSelect) return
     closeList({ restoreFocus: true })
   }
 
@@ -199,7 +197,6 @@ export default function CharacterListbox({
             ref={listRef}
             role="listbox"
             aria-label={listLabel}
-            aria-multiselectable={!closeOnSelect || undefined}
             onKeyDown={handleListKeyDown}
             className="max-h-64 overflow-y-auto [scrollbar-color:#665a3d_#151a15] [scrollbar-width:thin]"
           >
