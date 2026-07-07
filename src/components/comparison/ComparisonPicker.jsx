@@ -31,6 +31,7 @@ export default function ComparisonPicker({
           selectedIds={selectedCardIds}
           onSelect={onCardToggle}
           isDisabled={(card) => selectionFull && !selectedCardIds.includes(card.id)}
+          closeOnSelect={false}
           triggerLabel="选择要加入对比的人物"
           listLabel="对比人物列表"
           className="w-full max-w-[300px] justify-self-center"

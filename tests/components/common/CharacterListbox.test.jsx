@@ -11,7 +11,7 @@ const cards = [
 
 function renderListbox(props = {}) {
   const onSelect = vi.fn()
-  render(
+  const result = render(
     <CharacterListbox
       cards={cards}
       currentCard={cards[1]}
@@ -20,7 +20,7 @@ function renderListbox(props = {}) {
       {...props}
     />,
   )
-  return { onSelect }
+  return { ...result, onSelect }
 }
 
 describe('CharacterListbox keyboard interaction', () => {
@@ -109,6 +109,18 @@ describe('CharacterListbox keyboard interaction', () => {
     expect(screen.getAllByRole('option')).toHaveLength(cards.length)
   })
 
+  it('多选模式选中后会保持列表打开', async () => {
+    const user = userEvent.setup()
+    const { onSelect } = renderListbox({ closeOnSelect: false })
+
+    await user.click(screen.getByRole('button', { name: '选择水浒人物' }))
+    await user.click(screen.getByRole('option', { name: /武松/ }))
+
+    expect(onSelect).toHaveBeenCalledWith(cards[2])
+    expect(screen.getByRole('listbox')).toBeInTheDocument()
+    expect(screen.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'true')
+  })
+
   it('移动端打开后不会自动聚焦搜索框', async () => {
     document.documentElement.classList.add('mobile-device')
     const user = userEvent.setup()
@@ -121,5 +133,21 @@ describe('CharacterListbox keyboard interaction', () => {
     await waitFor(() => expect(screen.getByRole('listbox')).toBeInTheDocument())
     expect(search).not.toHaveFocus()
     expect(trigger).toHaveFocus()
+  })
+
+  it('移动端打开后使用全屏选择面板', async () => {
+    document.documentElement.classList.add('mobile-device')
+    const user = userEvent.setup()
+    renderListbox()
+
+    await user.click(screen.getByRole('button', { name: '选择水浒人物' }))
+
+    const panel = screen.getByRole('searchbox', { name: '搜索人物' }).parentElement
+    expect(panel).toHaveClass('mobile-device:fixed')
+    expect(panel).toHaveClass('mobile-device:inset-0')
+    expect(panel.parentElement).toBe(document.body)
+
+    await user.click(screen.getByRole('button', { name: '完成' }))
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   })
 })

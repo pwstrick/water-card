@@ -10,6 +10,7 @@ import { getRetryImageSource } from '../../utils/imageSource'
 export default function ComparisonCard({ card, comparisonKey, face, onRemove }) {
   const [loadState, setLoadState] = useState('loading')
   const [showActions, setShowActions] = useState(false)
+  const [isRemoving, setIsRemoving] = useState(false)
   const { attempt: loadAttempt, retry: retryLoad, isAutoRetrying } = useImageRetry(loadState, card.images.source)
   const imageSource = getRetryImageSource(card.images.source, loadAttempt)
   const {
@@ -27,13 +28,14 @@ export default function ComparisonCard({ card, comparisonKey, face, onRemove }) 
   })
 
   const revealActions = () => {
-    if (!isDragging) setShowActions(!showActions)
+    if (!isDragging && !isRemoving) setShowActions(!showActions)
   }
 
   const removeCard = (event) => {
     event.preventDefault()
     event.stopPropagation()
-    onRemove(comparisonKey)
+    setIsRemoving(true)
+    window.setTimeout(() => onRemove(comparisonKey), 220)
   }
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export default function ComparisonCard({ card, comparisonKey, face, onRemove }) 
       role="listitem"
       aria-label={`${card.name}，拖动调整顺序`}
     >
-      <div className="comparison-card-scene relative mx-auto w-full max-w-[300px]">
+      <div className={`comparison-card-scene relative mx-auto w-full max-w-[300px] transition-[opacity,transform,filter] duration-200 ease-out ${isRemoving ? 'translate-y-3 scale-95 opacity-0 blur-[1px]' : 'translate-y-0 scale-100 opacity-100'}`}>
         <div className={`comparison-card-inner ${face === 'back' ? 'is-back' : ''} ${loadState === 'ready' ? 'opacity-100' : 'opacity-0'}`}>
           <div className="comparison-card-face" style={imageStyle('front')} aria-label={`${card.name}正面`}>
             {card.effects?.foil && (
@@ -94,7 +96,8 @@ export default function ComparisonCard({ card, comparisonKey, face, onRemove }) 
             type="button"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={removeCard}
-            className="absolute right-2 top-2 z-20 rounded-full border border-[#d58a79aa] bg-[#150c0bea] px-3 py-1.5 text-[10px] tracking-[.12em] text-[#f0b6a9] shadow-[0_8px_24px_#0009] backdrop-blur transition-colors hover:border-[#f0b6a9] hover:bg-[#2a1210] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d58a7980]"
+            disabled={isRemoving}
+            className={`absolute right-2 top-2 z-20 rounded-full border border-[#d58a79aa] bg-[#150c0bea] px-3 py-1.5 text-[10px] tracking-[.12em] text-[#f0b6a9] shadow-[0_8px_24px_#0009] backdrop-blur transition-all duration-150 hover:border-[#f0b6a9] hover:bg-[#2a1210] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d58a7980] ${isRemoving ? 'scale-90 opacity-0' : 'scale-100 opacity-100'}`}
             aria-label={`将${card.name}移出对比区`}
           >
             删除
