@@ -2,15 +2,41 @@ import { createCards, heroes } from './heroes'
 import { createVillainCards } from './villains'
 
 // 冷烫卡图均为正面在左、背面在右的合并图。
-const baseHeroCards = createCards('code_perm', 'webp')
 const CODE_PERM_ASSET_DIRECTORY = 'code_perm'
+const CODE_PERM_HERO_NUMBER_OVERRIDES = {
+  周通: 87,
+  李忠: 86,
+  杜兴: 89,
+  汤隆: 88,
+  邹润: 91,
+  邹渊: 90,
+  朱富: 93,
+  朱贵: 92,
+}
+
+const cardId = (number) => String(number).padStart(3, '0')
 
 const codePermImage = (number) => ({
   source: `${import.meta.env.BASE_URL}assets/${CODE_PERM_ASSET_DIRECTORY}/${number}.webp`,
   layout: CODE_PERM_ASSET_DIRECTORY,
 })
 
-const cardId = (number) => String(number).padStart(3, '0')
+const createBaseHeroCards = () =>
+  createCards('code_perm', 'webp')
+    .map((card) => {
+      const number = CODE_PERM_HERO_NUMBER_OVERRIDES[card.name] ?? card.number
+
+      return {
+        ...card,
+        id: cardId(number),
+        displayId: cardId(number),
+        number,
+        images: codePermImage(number),
+      }
+    })
+    .sort((a, b) => a.number - b.number)
+
+const baseHeroCards = createBaseHeroCards()
 
 const createCodePermCard = ({ number, displayId, images, ...card }) => ({
   ...card,
