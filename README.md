@@ -2,7 +2,7 @@
 
 一个用于展示小浣熊水浒卡的响应式网站，提供卡片正反面鉴赏、基于 Three.js 的 3D 旋转与缩放、多版本卡片对比等功能，并支持 PC 端键盘操作及移动端触控交互。
 
-项目功能由自己设计页面，借助 AI 生成代码，累计投入约 22 小时、重置了 5 轮 AI 用量周期，完成了素材搜集、开发调试、组件化重构、性能与交互体验优化、单元测试与线上部署等环节。
+项目页面与交互由作者设计，并借助 AI 完成代码实现，涵盖素材整理、组件化重构、Three.js 交互、性能优化、自动化测试和线上部署等环节。
 
 在线体验：[https://pwstrick.github.io/water-card/](https://pwstrick.github.io/water-card/)
 
@@ -18,10 +18,12 @@
 
 - 收录普卡、奖闪、冷烫、立绘四类卡片，以及 108 位好汉、6 大恶人和扩展人物资料
 - 普卡提供 108 位好汉和 6 大恶人，冷烫额外收录异画、特卡和赠卡，立绘额外收录恶人卡和特卡
-- 支持拖动旋转、缩放和正反面切换的 3D 卡片预览
-- 支持卡片预览图下载
+- 支持拖动旋转、惯性、缩放、局部平移和正反面切换的 3D 卡片预览
+- 支持放大后的移动 / 翻转模式切换，以及当前角度预览图下载
 - 最多选择 6 张卡片进行正反面对比、拖动排序、同人物跨栏目对比和一键清空
-- 支持人物快速检索、键盘操作和移动端浏览
+- 支持中文、拼音和拼音首字母检索，以及完整键盘操作
+- 支持移动端单指旋转、双指缩放和平移，并针对 UC 浏览器提供布局兼容
+- 图片加载失败时自动退避重试，耗尽次数后可手动重试
 - 提供《好汉歌》背景音乐开关
 
 ## 技术栈
@@ -48,6 +50,7 @@ npm run dev
 
 ```bash
 npm test          # 运行单元测试
+npm run test:watch # 监听文件变化运行测试
 npm run build     # 构建生产版本
 npm run preview   # 预览构建结果
 ```
@@ -59,17 +62,35 @@ public/assets/standard/      普卡及恶人卡图
 public/assets/flash_prize/   奖闪卡图
 public/assets/code_perm/     冷烫卡图
 public/assets/character_art/  立绘卡图
-src/components/card-viewer/  Three.js 卡片预览
+src/components/card-viewer/  Three.js 场景、运动、输入和截图导出
 src/components/comparison/   多卡对比区域
 src/components/common/       通用交互组件
-src/config/                  卡图裁切和操作提示配置
-src/data/                    好汉资料及卡组配置
+src/components/viewer/       鉴赏区页面编排
+src/hooks/                   列表框、图片重试等状态逻辑
+src/config/                  卡图裁切、展示和操作提示配置
+src/data/                    人物资料、卡片工厂、卡组和查询逻辑
+src/utils/                   设备识别、搜索、图片与键盘工具
 tests/                       单元测试
 ```
 
+### Three.js 模块
+
+鉴赏区将场景职责拆分为多个相互独立的模块：
+
+- `threeCardScene.js`：创建并维护常驻的 renderer、camera 和场景生命周期
+- `cardMotion.js`：管理旋转、惯性、缩放、平移和正反面判断
+- `cardInteraction.js`：统一处理鼠标、Pointer Events、滚轮和双指手势
+- `cardSceneAssets.js`：创建卡片几何体、UV 裁切和纹理
+- `exportCardImage.js`：使用临时 RenderTarget 导出当前画面
+- `useCardViewer.js`：连接 React 状态与 Three.js 场景 API
+
+切换人物时不会重建 WebGL renderer，只通过 `updateCard()` 替换卡面纹理、UV geometry 和材质。快速连续切换时使用请求版本号丢弃过期纹理，并显式释放不再使用的 GPU 资源。
+
+移动设备将 renderer pixel ratio 限制为 `1.5`，纹理 anisotropy 限制为 `4`，降低全屏浏览时的 GPU 填充和采样开销。
+
 ## 卡片数据
 
-好汉和恶人的基础资料分别维护在 `src/data/heroes.js`、`src/data/villains.js`，卡组在 `src/data/collections.js` 中统一注册。每张卡图包含正反两面，具体裁切范围由 `src/config/cardImageLayouts.js` 配置。
+好汉和恶人的基础资料分别维护在 `src/data/heroes.js`、`src/data/villains.js`，卡组在 `src/data/collections.js` 中统一注册。`cardFactory.js` 负责生成编号、图片路径和卡片结构，`cardCatalog.js` 统一处理卡组查询、选择回退和同人物跨卡组查找。每张卡图包含正反两面，具体裁切范围由 `src/config/cardImageLayouts.js` 配置。
 
 当前冷烫和立绘卡组都采用横向合并图：正面在左、背面在右，两面等宽。冷烫图宽度为 1800px，WebP 质量为 90；立绘图宽度为 1800px，WebP 质量为 80。文件编号规则如下：
 
@@ -98,6 +119,31 @@ tests/                       单元测试
 - 点击单张卡片后显示删除按钮，并以退出动画移出
 - 点击“同人物对比”，以当前第一张卡片的人物名为基准，自动替换为其他栏目中的同名人物；没有同名卡的栏目会跳过
 - 点击“清空对比区”，所有卡片会先淡出下沉，再清空列表
+
+对比区接近视口时才动态加载组件、拖拽库和默认卡图。当前统一显示反面时，新加入的卡片会先以普通 2D 反面建立首帧，再在覆盖层下初始化 3D 双面结构，避免桌面浏览器短暂闪出正面。
+
+奖闪的闪光表现只用于对比区；鉴赏区 Three.js 卡片直接呈现原始卡图，不额外叠加动态反光 Shader。
+
+## 测试
+
+项目目前包含 21 个测试文件、72 项测试，主要覆盖：
+
+- 卡片数据生成、编号、裁切布局和卡组查询
+- 中文、拼音、拼音首字母搜索和列表框键盘交互
+- 图片自动重试、手动重试及 timer 清理
+- 卡片运动边界、旋转方向和缩放状态
+- WebGL 场景常驻、纹理竞态和 GPU 资源释放
+- 对比区选择上限、排序、同人物对比和删除动画
+- 新卡首次显示当前正反面的渲染过程
+
+提交改动前建议至少运行：
+
+```bash
+npm test
+npm run build
+```
+
+构建时 Vite 会提示 Three.js 独立 chunk 超过默认的 500KB 阈值。Three.js 已通过 `React.lazy()` 与主包分离，该提示目前是已知的体积提醒。
 
 ## 部署
 
