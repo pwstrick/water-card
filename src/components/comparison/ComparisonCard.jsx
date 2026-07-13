@@ -1,17 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import ImageLoadOverlay from '../common/ImageLoadOverlay'
 import { getCardFaceBackgroundStyle } from '../../config/cardImageLayouts'
-import useImageRetry from '../../hooks/useImageRetry'
-import { getRetryImageSource } from '../../utils/imageSource'
+import { COMPARISON_EXIT_DURATION } from '../../config/comparison'
+import useRetryableImageSource from '../../hooks/useRetryableImageSource'
 
 export default function ComparisonCard({ card, comparisonKey, face, onRemove }) {
   const [loadState, setLoadState] = useState('loading')
   const [showActions, setShowActions] = useState(false)
   const [isRemoving, setIsRemoving] = useState(false)
-  const { attempt: loadAttempt, retry: retryLoad, isAutoRetrying } = useImageRetry(loadState, card.images.source)
-  const imageSource = getRetryImageSource(card.images.source, loadAttempt)
+  const [faceLayoutReady, setFaceLayoutReady] = useState(false)
+  const [faceTransitionReady, setFaceTransitionReady] = useState(false)
+  const removeTimerRef = useRef(null)
+  const { imageSource, retry: retryLoad, isAutoRetrying } = useRetryableImageSource(
+    loadState,
+    card.images.source,
+  )
   const {
     attributes,
     listeners,
@@ -34,15 +39,32 @@ export default function ComparisonCard({ card, comparisonKey, face, onRemove }) 
     event.preventDefault()
     event.stopPropagation()
     setIsRemoving(true)
-    window.setTimeout(() => onRemove(comparisonKey), 220)
+    removeTimerRef.current = window.setTimeout(() => {
+      onRemove(comparisonKey)
+      removeTimerRef.current = null
+    }, COMPARISON_EXIT_DURATION)
   }
+
+  useEffect(() => () => {
+    if (removeTimerRef.current) window.clearTimeout(removeTimerRef.current)
+  }, [])
 
   useEffect(() => {
     let disposed = false
+    let prepareFrame = 0
+    let transitionFrame = 0
     const image = new Image()
     setLoadState('loading')
+    setFaceLayoutReady(false)
+    setFaceTransitionReady(false)
     image.onload = () => {
-      if (!disposed) setLoadState('ready')
+      if (disposed) return
+      setLoadState('ready')
+      // 先只绘制当前面；下一帧在其下建立 3D 卡，再下一帧移除覆盖层。
+      prepareFrame = requestAnimationFrame(() => {
+        setFaceLayoutReady(true)
+        transitionFrame = requestAnimationFrame(() => setFaceTransitionReady(true))
+      })
     }
     image.onerror = () => {
       if (!disposed) setLoadState('error')
@@ -50,6 +72,8 @@ export default function ComparisonCard({ card, comparisonKey, face, onRemove }) 
     image.src = imageSource
     return () => {
       disposed = true
+      cancelAnimationFrame(prepareFrame)
+      cancelAnimationFrame(transitionFrame)
     }
   }, [imageSource])
 
@@ -69,14 +93,25 @@ export default function ComparisonCard({ card, comparisonKey, face, onRemove }) 
       aria-label={`${card.name}，拖动调整顺序`}
     >
       <div className={`comparison-card-scene relative mx-auto w-full max-w-[300px] transition-[opacity,transform,filter] duration-200 ease-out ${isRemoving ? 'translate-y-3 scale-95 opacity-0 blur-[1px]' : 'translate-y-0 scale-100 opacity-100'}`}>
-        <div className={`comparison-card-inner ${face === 'back' ? 'is-back' : ''} ${loadState === 'ready' ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="comparison-card-face" style={imageStyle('front')} aria-label={`${card.name}正面`}>
-            {card.effects?.foil && (
-              <span key={`flash-${face}`} className="flash-card-shine" aria-hidden="true" />
-            )}
+        {faceLayoutReady && (
+          <div className={`comparison-card-inner opacity-100 ${face === 'back' ? 'is-back' : ''} ${faceTransitionReady ? 'is-face-transition-ready' : ''}`}>
+            <div className="comparison-card-face" style={imageStyle('front')} aria-label={`${card.name}正面`}>
+              {card.effects?.foil && (
+                <span key={`flash-${face}`} className="flash-card-shine" aria-hidden="true" />
+              )}
+            </div>
+            <div className="comparison-card-face comparison-card-back" style={imageStyle('back')} aria-label={`${card.name}背面`} />
           </div>
-          <div className="comparison-card-face comparison-card-back" style={imageStyle('back')} aria-label={`${card.name}背面`} />
-        </div>
+        )}
+        {!faceTransitionReady && (
+          <div
+            className={`comparison-card-face comparison-card-static-face transition-opacity duration-300 ${loadState === 'ready' ? 'opacity-100' : 'opacity-0'}`}
+            style={imageStyle(face)}
+            aria-label={`${card.name}${face === 'back' ? '背面' : '正面'}`}
+          >
+            {face === 'front' && card.effects?.foil && <span className="flash-card-shine" aria-hidden="true" />}
+          </div>
+        )}
         <ImageLoadOverlay
           loadState={loadState}
           isAutoRetrying={isAutoRetrying}

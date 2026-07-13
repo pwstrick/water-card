@@ -9,6 +9,7 @@ export const getRomanizedInitials = (value) => String(value ?? '')
   .join('')
   .toLowerCase()
 
+// 同时收录中文、完整拼音和拼音首字母，统一生成一次可模糊匹配的搜索语料。
 export const getCardSearchText = (card) => normalizeSearchText([
   card.id,
   card.displayId,

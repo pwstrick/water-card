@@ -1,3 +1,5 @@
+import { findCardSelection } from '../../data/cardCatalog'
+
 const KEY_SEPARATOR = ':'
 
 // 同一人物在多个卡组中的 id 可能相同，因此排序键必须带上卡组 id。
@@ -17,8 +19,5 @@ export const parseComparisonCardKey = (key) => {
 
 export const findComparisonCard = (collections, key) => {
   const { collectionId, cardId } = parseComparisonCardKey(key)
-  const collection = collections.find((item) => item.id === collectionId)
-  const card = collection?.cards.find((item) => item.id === cardId)
-
-  return { collection, card }
+  return findCardSelection(collections, collectionId, cardId)
 }

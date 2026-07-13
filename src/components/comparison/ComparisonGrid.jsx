@@ -15,6 +15,7 @@ import {
 import ComparisonCard from './ComparisonCard'
 
 export default function ComparisonGrid({ cards, face, onReorder, onRemove, isClearing = false }) {
+  // 鼠标使用位移阈值避免普通点击误触拖拽；触摸使用长按以保留页面纵向滚动。
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 220, tolerance: 8 } }),

@@ -28,8 +28,13 @@ html.mobile-device .desktop-character-switch { display: none !important; }
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
-  transition: transform .65s cubic-bezier(.22, .75, .22, 1), opacity .3s ease;
+  transition: opacity .3s ease;
   -webkit-transform-style: preserve-3d;
+  -webkit-transition: opacity .3s ease;
+}
+
+.comparison-card-inner.is-face-transition-ready {
+  transition: transform .65s cubic-bezier(.22, .75, .22, 1), opacity .3s ease;
   -webkit-transition: -webkit-transform .65s cubic-bezier(.22, .75, .22, 1), opacity .3s ease;
 }
 
@@ -53,6 +58,13 @@ html.mobile-device .desktop-character-switch { display: none !important; }
 .comparison-card-back {
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
+}
+
+/* 首次加载用普通 2D 卡面覆盖后台的 3D 双面卡，避免桌面浏览器短暂合成出正面。 */
+.comparison-card-static-face {
+  z-index: 2;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
 }
 
 .flash-card-shine {

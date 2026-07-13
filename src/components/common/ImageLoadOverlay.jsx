@@ -13,6 +13,7 @@ export default function ImageLoadOverlay({
   retryingIndicatorProps = {},
   errorClassName = '',
 }) {
+  // 自动重试阶段不暴露手动按钮，重试次数耗尽后才交由用户决定。
   if (loadState === 'loading') {
     return (
       <div className={overlayClassName} aria-live="polite">

@@ -5,6 +5,7 @@ import ComparisonGrid from './ComparisonGrid'
 import ComparisonPicker from './ComparisonPicker'
 import useComparisonCards from './useComparisonCards'
 import { COMPARISON_OPERATION_TIPS } from '../../config/operationTips'
+import { COMPARISON_EXIT_DURATION } from '../../config/comparison'
 
 export default function ComparisonSection({ collections }) {
   const [face, setFace] = useState('front')
@@ -31,11 +32,12 @@ export default function ComparisonSection({ collections }) {
   const clearWithAnimation = () => {
     if (isClearing || selectedCards.length === 0) return
     setIsClearing(true)
+    // 等 CSS 退出动画结束后再真正清空数据，避免卡片直接从 DOM 消失。
     clearTimerRef.current = window.setTimeout(() => {
       clearCards()
       setIsClearing(false)
       clearTimerRef.current = null
-    }, 220)
+    }, COMPARISON_EXIT_DURATION)
   }
 
   return (

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { arrayMove } from '@dnd-kit/sortable'
 import { DEFAULT_COMPARISON_CARDS, MAX_COMPARISON_CARDS } from '../../data/collections'
+import { findCharacterCards, resolveCardSelection } from '../../data/cardCatalog'
 import {
   createComparisonCardKey,
   findComparisonCard,
@@ -17,9 +18,13 @@ export default function useComparisonCards(collections) {
   const [pickerCardId, setPickerCardId] = useState(collections[0].cards[0].id)
   const [selectedKeys, setSelectedKeys] = useState(DEFAULT_SELECTED_KEYS)
 
-  const pickerCollection = collections.find((item) => item.id === pickerCollectionId) ?? collections[0]
-  const pickerCard = pickerCollection.cards.find((item) => item.id === pickerCardId) ?? pickerCollection.cards[0]
+  const { collection: pickerCollection, card: pickerCard } = resolveCardSelection(
+    collections,
+    pickerCollectionId,
+    pickerCardId,
+  )
   const selectedCards = useMemo(() => selectedKeys.flatMap((key) => {
+    // 数据更新后可能留下失效 key；flatMap 会安全忽略找不到的卡片。
     const { card } = findComparisonCard(collections, key)
     return card ? [{ key, card }] : []
   }), [collections, selectedKeys])
@@ -30,7 +35,7 @@ export default function useComparisonCards(collections) {
   })
 
   const changePickerCollection = (collectionId) => {
-    const nextCollection = collections.find((item) => item.id === collectionId) ?? collections[0]
+    const { collection: nextCollection } = resolveCardSelection(collections, collectionId)
     setPickerCollectionId(nextCollection.id)
     setPickerCardId(nextCollection.cards[0].id)
   }
@@ -38,6 +43,7 @@ export default function useComparisonCards(collections) {
   const togglePickerCard = (card) => {
     const key = createComparisonCardKey(pickerCollection.id, card.id)
     setPickerCardId(card.id)
+    // 已选项再次点击表示移除；达到上限时保留原数组，避免无意义重渲染。
     setSelectedKeys((items) => items.includes(key)
       ? items.filter((item) => item !== key)
       : items.length < MAX_COMPARISON_CARDS ? [...items, key] : items)
@@ -68,15 +74,13 @@ export default function useComparisonCards(collections) {
       const { collection: baseCollection, card: baseCard } = findComparisonCard(collections, firstKey)
       if (!baseCollection || !baseCard) return items
 
-      const orderedCollections = [
-        baseCollection,
-        ...collections.filter((item) => item.id !== baseCollection.id),
-      ]
-
-      return orderedCollections.flatMap((collection) => {
-        const card = collection.cards.find((item) => item.name === baseCard.name)
-        return card ? [createComparisonCardKey(collection.id, card.id)] : []
-      })
+      const versions = findCharacterCards(collections, baseCard.name)
+      // 将用户当前看到的版本放在首位，其余版本保持卡组配置顺序。
+      versions.sort((left, right) => (
+        Number(right.collection.id === baseCollection.id)
+        - Number(left.collection.id === baseCollection.id)
+      ))
+      return versions.map(({ collection, card }) => createComparisonCardKey(collection.id, card.id))
     })
   }
 

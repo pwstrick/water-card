@@ -16,6 +16,7 @@ export default function MusicToggle() {
 
     try {
       setFailed(false)
+      // 浏览器可能因自动播放策略拒绝 Promise，播放状态最终以 audio 事件为准。
       await audio.play()
     } catch {
       setFailed(true)

@@ -2,6 +2,7 @@ export const cardId = (number) => String(number).padStart(3, '0')
 
 export const prefixedDisplayId = (prefix, index) => `${prefix}${String(index + 1).padStart(2, '0')}`
 
+// 图片路径和裁切布局在数据生成阶段确定，渲染层无需理解不同卡组的目录规则。
 export const createCardImage = ({
   assetDirectory,
   imageExtension = 'webp',
@@ -13,6 +14,7 @@ export const createCardImage = ({
 })
 
 export const createNamedLookup = (items, missingMessage) => {
+  // 构建期先索引人物资料，后续批量生成卡片时避免反复线性扫描。
   const byName = new Map(items.map((item) => [item.name, item]))
 
   return (name) => {
@@ -27,6 +29,7 @@ export const createNumberedCardHelpers = ({
   imageExtension = 'webp',
   layout = assetDirectory,
 }) => {
+  // 每个卡组绑定自己的目录和布局，返回的局部工厂只关心编号及人物字段。
   const image = (number) => createCardImage({
     assetDirectory,
     imageExtension,

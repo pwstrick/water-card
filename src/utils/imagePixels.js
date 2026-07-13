@@ -1,4 +1,5 @@
 export function flipPixelRows(pixels, width, height) {
+  // 输入按 RGBA 四通道排列；逐行拷贝比逐像素交换更少创建临时对象。
   const rowLength = width * 4
   const flipped = new Uint8ClampedArray(pixels.length)
 

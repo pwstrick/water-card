@@ -4,6 +4,7 @@ export default function CharacterSwitch({ card, cards, onCardChange }) {
   const currentIndex = cards.findIndex((item) => item.id === card.id)
 
   const selectOffset = (offset) => {
+    // 加上 cards.length 后取模，让首尾人物可以循环切换。
     const nextIndex = (currentIndex + offset + cards.length) % cards.length
     onCardChange(cards[nextIndex].id)
   }

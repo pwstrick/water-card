@@ -7,6 +7,7 @@ const BADGE_TONE_CLASSES = {
 
 export function getCardBadgeClass(collection, card) {
   const presentation = collection.presentation ?? {}
+  // 人物类型配色优先于卡组默认配色，例如普卡中的反派使用 danger。
   const tone = presentation.kindBadgeTones?.[card.kind]
     ?? presentation.badgeTone
     ?? 'neutral'
