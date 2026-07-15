@@ -23,6 +23,10 @@ export default function ComparisonSection({ collections }) {
     removeCard,
     clearCards,
     compareSameCharacter,
+    comparePreviousCharacter,
+    compareNextCharacter,
+    canComparePrevious,
+    canCompareNext,
   } = useComparisonCards(collections)
 
   useEffect(() => () => {
@@ -70,7 +74,11 @@ export default function ComparisonSection({ collections }) {
           <ComparisonFaceSwitch
             face={face}
             onChange={setFace}
+            onComparePrevious={comparePreviousCharacter}
             onCompareSameCharacter={compareSameCharacter}
+            onCompareNext={compareNextCharacter}
+            canComparePrevious={canComparePrevious}
+            canCompareNext={canCompareNext}
             onClear={clearWithAnimation}
             isClearing={isClearing}
           />
@@ -82,20 +90,42 @@ export default function ComparisonSection({ collections }) {
   )
 }
 
-function ComparisonFaceSwitch({ face, onChange, onCompareSameCharacter, onClear, isClearing }) {
+function ComparisonFaceSwitch({
+  face,
+  onChange,
+  onComparePrevious,
+  onCompareSameCharacter,
+  onCompareNext,
+  canComparePrevious,
+  canCompareNext,
+  onClear,
+  isClearing,
+}) {
   return (
     <div className="mt-9 flex flex-wrap items-center justify-center gap-5 max-sm:gap-4 mobile-device:gap-4" role="group" aria-label="统一切换卡片正反面与同人物对比">
       <FaceButton label="正面" mark="正" size="md" active={face === 'front'} onClick={() => onChange('front')} />
       <span className="font-sans text-[22px] text-[#c7a762]" aria-hidden="true">↔</span>
       <FaceButton label="背面" mark="背" size="md" active={face === 'back'} onClick={() => onChange('back')} />
       <div className="flex items-center gap-5 max-sm:w-full max-sm:gap-3 mobile-device:w-full mobile-device:gap-3">
+        <ComparisonActionButton onClick={onComparePrevious} disabled={!canComparePrevious}>
+          上一组
+        </ComparisonActionButton>
         <ComparisonActionButton onClick={onCompareSameCharacter}>
           同人物对比
         </ComparisonActionButton>
-        <ComparisonActionButton tone="danger" onClick={onClear} disabled={isClearing} active={isClearing}>
-          {isClearing ? '清空中' : '清空对比区'}
+        <ComparisonActionButton onClick={onCompareNext} disabled={!canCompareNext}>
+          下一组
         </ComparisonActionButton>
       </div>
+      <ComparisonActionButton
+        tone="danger"
+        onClick={onClear}
+        disabled={isClearing}
+        active={isClearing}
+        className="max-sm:w-full mobile-device:w-full"
+      >
+        {isClearing ? '清空中' : '清空对比区'}
+      </ComparisonActionButton>
     </div>
   )
 }

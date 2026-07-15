@@ -100,4 +100,28 @@ describe('useComparisonCards', () => {
       'character_art:034',
     ])
   })
+
+  it('可以切换到排名相邻人物的各卡组版本，并在首尾禁用对应方向', () => {
+    const { result } = renderHook(() => useComparisonCards(collections))
+
+    expect(result.current.canComparePrevious).toBe(false)
+    expect(result.current.canCompareNext).toBe(true)
+
+    act(() => result.current.compareNextCharacter())
+    expect(result.current.selectedCards.map(({ key }) => key)).toEqual([
+      'standard:001',
+      'flash_prize:001',
+      'code_perm:001',
+      'character_art:001',
+    ])
+    expect(result.current.canComparePrevious).toBe(true)
+
+    act(() => result.current.comparePreviousCharacter())
+    expect(result.current.selectedCards.map(({ key }) => key)).toEqual([
+      'standard:034',
+      'flash_prize:034',
+      'code_perm:034',
+      'character_art:034',
+    ])
+  })
 })

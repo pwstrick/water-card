@@ -66,22 +66,42 @@ export default function useComparisonCards(collections) {
     setSelectedKeys([])
   }
 
+  // 将指定人物替换为各卡组版本；保留当前第一张卡所属卡组作为首位。
+  const compareCharacter = (characterName, preferredCollectionId) => {
+    const versions = findCharacterCards(collections, characterName)
+    versions.sort((left, right) => (
+      Number(right.collection.id === preferredCollectionId)
+      - Number(left.collection.id === preferredCollectionId)
+    ))
+    return versions.map(({ collection, card }) => createComparisonCardKey(collection.id, card.id))
+  }
+
+  const getAdjacentCharacter = (offset) => {
+    const firstKey = selectedKeys[0]
+    if (!firstKey) return null
+    const { collection: baseCollection, card: baseCard } = findComparisonCard(collections, firstKey)
+    if (!baseCollection || !baseCard) return null
+
+    // 普卡是唯一完整且按梁山排名排列的基准列表，其他卡组可能存在异画或编号偏移。
+    const rankingCards = collections[0]?.cards ?? []
+    const currentIndex = rankingCards.findIndex((card) => card.name === baseCard.name)
+    return currentIndex < 0 ? null : rankingCards[currentIndex + offset]
+  }
+
+  const compareCharacterAtOffset = (offset) => {
+    const targetCard = getAdjacentCharacter(offset)
+    if (!targetCard) return
+    const firstKey = selectedKeys[0]
+    const { collection: baseCollection } = findComparisonCard(collections, firstKey)
+    setSelectedKeys(compareCharacter(targetCard.name, baseCollection?.id))
+  }
+
   const compareSameCharacter = () => {
-    setSelectedKeys((items) => {
-      const firstKey = items[0]
-      if (!firstKey) return items
-
-      const { collection: baseCollection, card: baseCard } = findComparisonCard(collections, firstKey)
-      if (!baseCollection || !baseCard) return items
-
-      const versions = findCharacterCards(collections, baseCard.name)
-      // 将用户当前看到的版本放在首位，其余版本保持卡组配置顺序。
-      versions.sort((left, right) => (
-        Number(right.collection.id === baseCollection.id)
-        - Number(left.collection.id === baseCollection.id)
-      ))
-      return versions.map(({ collection, card }) => createComparisonCardKey(collection.id, card.id))
-    })
+    const firstKey = selectedKeys[0]
+    if (!firstKey) return
+    const { collection: baseCollection, card: baseCard } = findComparisonCard(collections, firstKey)
+    if (!baseCollection || !baseCard) return
+    setSelectedKeys(compareCharacter(baseCard.name, baseCollection.id))
   }
 
   return {
@@ -96,5 +116,9 @@ export default function useComparisonCards(collections) {
     removeCard,
     clearCards,
     compareSameCharacter,
+    comparePreviousCharacter: () => compareCharacterAtOffset(-1),
+    compareNextCharacter: () => compareCharacterAtOffset(1),
+    canComparePrevious: Boolean(getAdjacentCharacter(-1)),
+    canCompareNext: Boolean(getAdjacentCharacter(1)),
   }
 }
