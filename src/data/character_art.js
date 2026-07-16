@@ -3,8 +3,23 @@ import { villains } from './villains'
 import { createNamedLookup, createNumberedCardHelpers } from './cardFactory'
 
 const CHARACTER_ART_ASSET_DIRECTORY = 'character_art'
+// 立绘资源的 86、87 号图片与人物排名成对倒置，排名字段仍保持原始顺序。
+const CHARACTER_ART_ASSET_NUMBER_OVERRIDES = {
+  周通: 87,
+  李忠: 86,
+}
 
 const baseHeroCards = createCards(CHARACTER_ART_ASSET_DIRECTORY, 'webp')
+  .map((card) => {
+    const assetNumber = CHARACTER_ART_ASSET_NUMBER_OVERRIDES[card.name] ?? card.number
+    return {
+      ...card,
+      images: {
+        ...card.images,
+        source: `${import.meta.env.BASE_URL}assets/${CHARACTER_ART_ASSET_DIRECTORY}/${assetNumber}.webp`,
+      },
+    }
+  })
 
 const {
   createNumberedCards: createNumberedCharacterArtCards,

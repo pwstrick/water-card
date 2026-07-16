@@ -2,6 +2,19 @@ import { describe, expect, it } from 'vitest'
 import { cards, extraCharacterCards, heroCards, villainCards } from '../../src/data/character_art'
 
 describe('character_art cards', () => {
+  it('立绘保留人物排名并映射李忠、周通的实际图片编号', () => {
+    expect(heroCards.find((item) => item.name === '周通')).toMatchObject({
+      id: '086',
+      displayId: '086',
+      images: { source: '/assets/character_art/87.webp' },
+    })
+    expect(heroCards.find((item) => item.name === '李忠')).toMatchObject({
+      id: '087',
+      displayId: '087',
+      images: { source: '/assets/character_art/86.webp' },
+    })
+  })
+
   it('包含 108 将并使用立绘图资源', () => {
     expect(cards).toHaveLength(115)
     expect(heroCards).toHaveLength(108)
