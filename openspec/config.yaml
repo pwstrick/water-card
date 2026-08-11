@@ -1,0 +1,79 @@
+schema: spec-driven
+
+context: |
+  项目：水浒卡鉴赏室（water-card-gallery）。这是一个纯前端、响应式的收藏卡鉴赏网站，
+  用于展示小浣熊水浒卡的正反面、3D 旋转与缩放，并支持最多 6 张卡片的跨版本对比。
+
+  产品与领域：
+  - 当前包含普卡、奖闪、冷烫、立绘四类卡组，以及 108 位好汉、恶人和扩展人物资料。
+  - 卡片视觉必须忠实于原始素材；鉴赏区和对比区不额外叠加反光、闪光或其他人工效果。
+  - 普卡是人物排名和相邻人物切换的基准卡组；其他卡组可能缺少人物或包含异画、特卡、赠卡。
+  - 每张素材图包含正反两面，裁切和版式由 src/config/cardImageLayouts.js 集中配置。
+  - 卡片 ID 使用三位数字字符串；显示编号可使用“异01”“特01”“赠01”“恶01”等业务前缀。
+  - 静态素材放在 public/assets/<卡组目录>/，运行时路径必须基于 import.meta.env.BASE_URL 生成。
+
+  技术栈：
+  - JavaScript ES modules（不使用 TypeScript）、React 19、React DOM 19。
+  - Vite 8；开发端口 5175，预览端口 4175。
+  - Tailwind CSS 4，少量全局 CSS 用于 3D、兼容性和无法直接用工具类表达的样式。
+  - Three.js 负责 3D 卡片场景，dnd-kit 负责对比卡片拖拽排序。
+  - Vitest 4、jsdom、Testing Library 和 jest-dom 负责单元及组件测试。
+  - 建议 Node.js 24；最低版本为 20.19+ 或 22.12+，包管理器使用 npm。
+
+  架构约定：
+  - src/components/card-viewer/ 管理 Three.js 场景、运动、输入、纹理和截图导出；renderer 常驻，
+    切换卡片时只替换纹理、UV 几何体和材质，并显式释放废弃的 GPU 资源。
+  - src/components/comparison/ 管理多卡选择、排序和同人物跨卡组对比；选择上限由
+    MAX_COMPARISON_CARDS 统一控制，不在组件中重复硬编码。
+  - src/data/ 保存人物和卡组数据；src/data/collections.js 是卡组注册与默认值的单一来源，
+    src/data/cardFactory.js 负责统一生成编号、素材路径和卡片结构。
+  - src/config/ 保存卡图裁切、展示和操作提示等声明式配置；src/utils/ 保存无 UI 的通用逻辑；
+    可复用状态逻辑放在 hooks 或领域组件旁的自定义 Hook 中。
+  - 组件按职责拆分，优先使用命名常量、纯函数和声明式配置，避免在 JSX 中复制业务规则。
+  - 对比区使用 React.lazy 和视口接近时加载，避免首屏初始化拖拽库和多张卡图；不要破坏该性能边界。
+
+  编码与交互约定：
+  - 沿用现有 JavaScript 风格：单引号、无分号、两空格缩进、尾随逗号、函数组件和 Hooks。
+  - import 使用相对路径；导入分组与换行方式遵循相邻文件，不引入未配置的路径别名。
+  - 注释使用中文，说明非显而易见的业务原因、性能取舍或浏览器兼容背景，不复述代码本身。
+  - 样式优先使用 Tailwind 工具类，并保持现有深色、中式、低饱和视觉语言。
+  - 所有交互同时考虑桌面键盘、鼠标/Pointer Events 和移动端触控；列表框保持完整键盘可达性。
+  - 保留移动端性能限制（pixel ratio 最高 1.5、anisotropy 最高 4）及 UC 浏览器兼容处理。
+  - 图片加载需保留自动退避重试、失败态和手动重试；异步纹理加载需防止旧请求覆盖新选择。
+  - 尊重 prefers-reduced-motion，并为非装饰性控件提供可访问名称、状态和必要的 ARIA 语义。
+
+  测试、构建与部署：
+  - 行为变更应在 tests/ 中补充或更新 Vitest 测试，优先测试用户可观察行为和纯逻辑边界。
+  - 提交前至少运行 npm test 和 npm run build；Three.js 独立 chunk 的 500KB 提示是已知提醒。
+  - main 分支通过 GitHub Actions 部署到 GitHub Pages，默认 base 为 /water-card/。
+  - EdgeOne 部署通过 DEPLOY_TARGET=edgeone 使用根路径 /；任何资源路径改动都必须兼容两种 base。
+  - Git 提交信息沿用 Conventional Commits 风格，如 feat:、fix:、refactor:、docs:、test:。
+
+rules:
+  proposal:
+    - 使用中文说明用户价值、范围和动机，并明确列出非目标。
+    - 指出受影响的卡组、交互端、数据或素材；不要把素材补齐默认视为代码改动的一部分。
+    - 涉及视觉、3D 或手势变更时，说明桌面端、移动端、可访问性和性能影响。
+  specs:
+    - 需求使用可验证的 MUST/SHALL 表述，并为正常流程、边界和失败状态编写场景。
+    - 涉及卡片数据时，明确卡组、编号、图片布局、缺失人物和跨卡组回退规则。
+    - 涉及资源 URL 时，必须覆盖 GitHub Pages 子路径与 EdgeOne 根路径两种部署方式。
+  design:
+    - 优先复用现有模块边界和单一数据源；新增抽象时说明它取代了哪些重复规则。
+    - Three.js 设计必须交代 renderer 生命周期、异步竞态、GPU 资源释放及移动端资源上限。
+    - 交互设计必须说明键盘、指针、触控、减弱动画和加载/错误状态。
+  tasks:
+    - 按数据或配置、核心逻辑、界面集成、测试与验证的依赖顺序拆分任务。
+    - 每个行为改动都应包含对应测试任务；最终验证必须包含 npm test 和 npm run build。
+    - 将新增或转换图片素材列为独立任务，并写明目录、编号、格式、尺寸和质量要求。
+
+operations:
+  apply:
+    guidance:
+      - 开始前检查工作区现有改动并保留用户未提交的内容。
+      - 优先执行受影响测试，再执行完整 npm test 和 npm run build。
+      - 不在无关文件中进行顺手重构；若发现范围外问题，在结果中单独记录。
+  archive:
+    guidance:
+      - 归档前确认任务清单完成、增量规范与实现一致，并记录测试和构建结果。
+      - 若保留已知限制、素材缺口或浏览器兼容风险，在归档摘要中明确列出。
